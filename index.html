@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NkTools - AI Generator Suite Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .active-tab { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-glow:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); transition: all 0.3s; }
+        .tool-section { transition: all 0.4s ease; }
+        .hidden { display: none; }
+        .result-img { max-height: 500px; width: auto; margin: 0 auto; border-radius: 12px; }
+        .copy-success { color: #10b981; font-weight: bold; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-bolt text-yellow-400 text-2xl"></i>
+            <span class="text-xl font-bold tracking-tight">NkTools <span class="text-blue-500 text-sm">Pro</span></span>
+        </div>
+        <div class="hidden md:flex gap-4 text-sm font-medium">
+            <button onclick="switchTab('i2p')" class="tab-btn px-3 py-2" id="tab-i2p">Image to Prompt</button>
+            <button onclick="switchTab('p2i')" class="tab-btn px-3 py-2" id="tab-p2i">Prompt to Image</button>
+            <button onclick="switchTab('changer')" class="tab-btn px-3 py-2" id="tab-changer">Pro Changer</button>
+            <button onclick="switchTab('video')" class="tab-btn active-tab px-3 py-2" id="tab-video">AI Video</button>
+        </div>
+        <div class="text-xs bg-blue-600 px-3 py-1 rounded-full uppercase font-bold">Turbo AI</div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+        
+        <!-- 1. AI Video Tool -->
+        <section id="sec-video" class="tool-section">
+            <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
+                <h1 class="text-2xl font-bold mb-2 text-blue-400">Cinematic Motion Engine</h1>
+                <p class="text-xs text-slate-400 mb-8 italic">Convert any photo to motion. (Best for landscape/portraits)</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800">
+                        <label class="block text-[10px] font-bold mb-3 uppercase text-blue-300">Input Photo</label>
+                        <div class="border-2 border-dashed border-slate-700 rounded-xl p-2 h-48 flex items-center justify-center cursor-pointer hover:border-blue-500 bg-black/20" onclick="document.getElementById('video-input').click()">
+                            <input type="file" id="video-input" class="hidden" accept="image/*" onchange="previewImage(this, 'video-prev')">
+                            <img id="video-prev-img" class="hidden h-full w-full object-contain rounded-lg">
+                            <div id="video-prev-txt" class="text-center">
+                                <i class="fas fa-video text-3xl mb-2 text-slate-600"></i>
+                                <p class="text-[10px] text-slate-500">Upload Base Image</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 flex flex-col">
+                        <label class="block text-[10px] font-bold mb-3 uppercase text-blue-300">Motion Description</label>
+                        <textarea id="video-prompt" class="w-full flex-grow bg-transparent text-sm outline-none resize-none border border-slate-800 rounded-xl p-3 focus:border-blue-500" placeholder="E.g. Smooth hair movement, dramatic zoom in, slow waves..."></textarea>
+                    </div>
+                </div>
+                <button onclick="generateVideo()" class="w-full bg-blue-600 py-4 rounded-xl font-bold btn-glow flex items-center justify-center gap-2">
+                    <i class="fas fa-play-circle"></i> GENERATE MOTION
+                </button>
+
+                <div id="video-result-container" class="mt-8 hidden border-4 border-slate-800 rounded-2xl overflow-hidden aspect-video relative bg-black flex items-center justify-center">
+                    <video id="video-player" class="w-full h-full object-contain hidden" controls playsinline loop muted></video>
+                    <img id="video-fallback-img" class="w-full h-full object-contain hidden">
+                    <div id="video-error-box" class="hidden text-center p-6">
+                        <i class="fas fa-exclamation-triangle text-orange-500 text-3xl mb-3"></i>
+                        <p id="error-main-text" class="text-sm text-slate-300">Motion Sync Failed</p>
+                        <p id="error-sub-text" class="text-[10px] text-slate-500 mt-2">AI returned a static frame. Please simplify your prompt.</p>
+                    </div>
+                    <button id="video-dl" class="absolute top-4 right-4 bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-full shadow-lg z-10 hidden">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Image to Prompt -->
+        <section id="sec-i2p" class="tool-section hidden">
+            <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
+                <h1 class="text-2xl font-bold mb-4 text-yellow-400">Image to Prompt</h1>
+                <div class="border-2 border-dashed border-slate-700 rounded-xl p-6 mb-6 text-center cursor-pointer" onclick="document.getElementById('i2p-input').click()">
+                    <input type="file" id="i2p-input" class="hidden" accept="image/*" onchange="previewImage(this, 'i2p-prev')">
+                    <img id="i2p-prev-img" class="hidden result-img mb-4">
+                    <div id="i2p-prev-txt">
+                        <i class="fas fa-search text-4xl mb-2 text-slate-600"></i>
+                        <p>Upload image to get the prompt</p>
+                    </div>
+                </div>
+                <button onclick="imageToPrompt()" class="w-full bg-yellow-600 py-4 rounded-xl font-bold btn-glow">ANALYZE IMAGE</button>
+                <div id="i2p-result-box" class="mt-6 p-4 bg-black/40 rounded-xl border border-slate-800 hidden relative">
+                    <p class="text-xs text-yellow-400 font-bold mb-2 uppercase">Generated Prompt:</p>
+                    <div id="i2p-text" class="text-sm text-slate-300 leading-relaxed italic mb-4"></div>
+                    <button onclick="copyToClipboard('i2p-text')" class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                        <i class="fas fa-copy"></i> Copy Prompt
+                    </button>
+                    <span id="copy-msg" class="text-[10px] ml-2 hidden copy-success">Copied!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Prompt to Image -->
+        <section id="sec-p2i" class="tool-section hidden">
+            <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
+                <h1 class="text-2xl font-bold mb-4 text-green-400">Prompt to Image</h1>
+                <textarea id="p2i-prompt" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl mb-6 text-sm outline-none focus:border-green-500 h-32" placeholder="Describe the image you want to create..."></textarea>
+                <button onclick="promptToImage()" class="w-full bg-green-600 py-4 rounded-xl font-bold btn-glow">GENERATE IMAGE</button>
+                <div id="p2i-result-container" class="mt-8 hidden relative group">
+                    <img id="p2i-img" class="result-img shadow-2xl border-4 border-slate-800">
+                    <button onclick="downloadImage('p2i-img', 'nktools-ai-img.png')" class="absolute top-4 right-4 bg-green-600 hover:bg-green-500 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Pro Changer (Editing) -->
+        <section id="sec-changer" class="tool-section hidden">
+            <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
+                <h1 class="text-2xl font-bold mb-4 text-purple-400">Pro Changer</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center cursor-pointer h-48 flex items-center justify-center" onclick="document.getElementById('edit-input').click()">
+                        <input type="file" id="edit-input" class="hidden" accept="image/*" onchange="previewImage(this, 'edit-prev')">
+                        <img id="edit-prev-img" class="hidden h-full w-full object-contain rounded-lg">
+                        <div id="edit-prev-txt">
+                            <i class="fas fa-edit text-3xl mb-2 text-slate-600"></i>
+                            <p class="text-xs">Original Photo</p>
+                        </div>
+                    </div>
+                    <textarea id="edit-prompt" class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl text-sm outline-none focus:border-purple-500" placeholder="E.g. Change hair color to blue, add fire in background..."></textarea>
+                </div>
+                <button onclick="editImage()" class="w-full bg-purple-600 py-4 rounded-xl font-bold btn-glow">APPLY CHANGES</button>
+                <div id="edit-result-container" class="mt-8 hidden relative group">
+                    <img id="edit-img" class="result-img shadow-2xl border-4 border-slate-800">
+                    <button onclick="downloadImage('edit-img', 'nktools-edited.png')" class="absolute top-4 right-4 bg-purple-600 hover:bg-purple-500 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center hidden">
+        <div class="loader h-20 w-20 mb-6 border-4 border-slate-700 rounded-full"></div>
+        <p id="loading-text" class="text-xl font-bold text-blue-400 tracking-widest uppercase text-center px-4 italic animate-pulse">Processing...</p>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+
+        async function fetchAI(url, payload) {
+            let retries = 5;
+            let delay = 1000;
+            while (retries > 0) {
+                try {
+                    const res = await fetch(url, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(payload) 
+                    });
+                    if (res.ok) return await res.json();
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2; retries--;
+                } catch (e) { 
+                    if (retries === 1) throw e;
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2; retries--;
+                }
+            }
+            return null;
+        }
+
+        function toggleLoading(show, text = "Processing...") {
+            document.getElementById('loading-text').innerText = text;
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tool-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active-tab');
+        }
+
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById(previewId + '-img');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    const txt = document.getElementById(previewId + '-txt');
+                    if(txt) txt.classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const msg = document.getElementById('copy-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 2000);
+        }
+
+        function downloadImage(imgId, filename) {
+            const img = document.getElementById(imgId);
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = filename;
+            link.click();
+        }
+
+        // --- AI Video Logic ---
+        async function generateVideo() {
+            const prompt = document.getElementById('video-prompt').value;
+            const file = document.getElementById('video-input').files[0];
+            if (!file || !prompt) return alert("Photo and motion description are required!");
+
+            toggleLoading(true, "FORCING MOTION RENDER...");
+            const player = document.getElementById('video-player');
+            const fallback = document.getElementById('video-fallback-img');
+            const errBox = document.getElementById('video-error-box');
+            const dlBtn = document.getElementById('video-dl');
+            
+            document.getElementById('video-result-container').classList.remove('hidden');
+            [player, fallback, errBox, dlBtn].forEach(el => el.classList.add('hidden'));
+
+            try {
+                const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result.split(',')[1]); rd.readAsDataURL(file); });
+                const res = await fetchAI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`, {
+                    contents: [{ parts: [
+                        { text: `ACT AS AN AI VIDEO GENERATOR. 
+                        GOAL: Animate this photo into a 5-second realistic movement. 
+                        MOTION TYPE: ${prompt}. 
+                        OUTPUT: You MUST return an MP4 video file or a high-quality animated GIF. 
+                        Do NOT return a static image.` },
+                        { inlineData: { mimeType: file.type, data: b64 } }
+                    ]}],
+                    generationConfig: { 
+                        responseModalities: ["IMAGE"],
+                        temperature: 1.0 
+                    }
+                });
+
+                const part = res?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (part && part.inlineData.data) {
+                    const mime = part.inlineData.mimeType;
+                    const url = `data:${mime};base64,${part.inlineData.data}`;
+                    if (mime.includes('video') || mime.includes('mp4') || mime.includes('gif')) {
+                        player.src = url;
+                        player.classList.remove('hidden');
+                        player.play();
+                        dlBtn.classList.remove('hidden');
+                        dlBtn.onclick = () => { const a = document.createElement('a'); a.href = url; a.download="nktools-motion.mp4"; a.click(); };
+                    } else {
+                        fallback.src = url;
+                        fallback.classList.remove('hidden');
+                        errBox.classList.remove('hidden');
+                    }
+                } else {
+                    errBox.classList.remove('hidden');
+                }
+            } catch (e) { errBox.classList.remove('hidden'); }
+            toggleLoading(false);
+        }
+
+        // --- Image to Prompt Logic ---
+        async function imageToPrompt() {
+            const file = document.getElementById('i2p-input').files[0];
+            if (!file) return alert("Upload an image!");
+            toggleLoading(true, "EXTRACTING PROMPT...");
+            try {
+                const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result.split(',')[1]); rd.readAsDataURL(file); });
+                const res = await fetchAI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    contents: [{ parts: [{ text: "Create a detailed AI art prompt for this image." }, { inlineData: { mimeType: file.type, data: b64 } }] }]
+                });
+                const text = res.candidates[0].content.parts[0].text;
+                document.getElementById('i2p-result-box').classList.remove('hidden');
+                document.getElementById('i2p-text').innerText = text;
+            } catch (e) { alert("Analysis failed."); }
+            toggleLoading(false);
+        }
+
+        // --- Prompt to Image Logic ---
+        async function promptToImage() {
+            const prompt = document.getElementById('p2i-prompt').value;
+            if (!prompt) return alert("Enter a prompt!");
+            toggleLoading(true, "GENERATING IMAGE...");
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ instances: { prompt }, parameters: { sampleCount: 1 } })
+                });
+                const data = await res.json();
+                const url = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                document.getElementById('p2i-result-container').classList.remove('hidden');
+                document.getElementById('p2i-img').src = url;
+            } catch (e) { alert("Generation failed."); }
+            toggleLoading(false);
+        }
+
+        // --- Pro Changer Logic ---
+        async function editImage() {
+            const file = document.getElementById('edit-input').files[0];
+            const prompt = document.getElementById('edit-prompt').value;
+            if (!file || !prompt) return alert("Photo and prompt required!");
+            toggleLoading(true, "EDITING...");
+            try {
+                const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result.split(',')[1]); rd.readAsDataURL(file); });
+                const res = await fetchAI(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`, {
+                    contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: file.type, data: b64 } }] }],
+                    generationConfig: { responseModalities: ['IMAGE'] }
+                });
+                const editB64 = res.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (editB64) {
+                    const url = `data:image/png;base64,${editB64}`;
+                    document.getElementById('edit-result-container').classList.remove('hidden');
+                    document.getElementById('edit-img').src = url;
+                }
+            } catch (e) { alert("Editing failed."); }
+            toggleLoading(false);
+        }
+    </script>
+</body>
+</html>
