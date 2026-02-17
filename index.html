@@ -150,9 +150,9 @@
     <!-- Error Modal -->
     <div id="error-modal" class="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center hidden">
         <div class="glass p-6 rounded-2xl max-w-sm w-full mx-4 border border-red-500/50">
-            <h3 class="text-red-400 font-bold mb-2">Error Aayi Hai!</h3>
+            <h3 class="text-red-400 font-bold mb-2">System Alert</h3>
             <p id="error-msg" class="text-xs text-slate-300 mb-6"></p>
-            <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-lg text-sm">Theek Hai</button>
+            <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-lg text-sm">Close</button>
         </div>
     </div>
 
@@ -165,10 +165,10 @@
         const API_KEY_KEY = 'nk_api_key_v2';
         let currentApiKey = localStorage.getItem(API_KEY_KEY) || "";
 
-        // Purane models ko hata kar naye models dale gaye hain
+        // CORE STABLE MODELS
         const TEXT_MODEL = 'gemini-2.0-flash';
         const IMAGE_MODEL = 'imagen-3.0-generate-001';
-        const MEDIA_MODEL = 'gemini-2.0-flash'; // For image analysis and editing
+        const FALLBACK_IMAGE_MODEL = 'gemini-2.5-flash-image-preview'; // For image generation fallback
 
         window.onload = () => {
             if (!currentApiKey) {
@@ -182,7 +182,8 @@
             document.getElementById('settings-modal').classList.toggle('hidden');
         }
 
-        function showError(msg) {
+        function showError(msg, title = "System Alert") {
+            document.querySelector('#error-modal h3').innerText = title;
             document.getElementById('error-msg').innerText = msg;
             document.getElementById('error-modal').classList.remove('hidden');
         }
@@ -200,11 +201,10 @@
             location.reload();
         }
 
-        // --- Core AI Call with Auto-Retry (Exponential Backoff) ---
         async function callAI(endpoint, payload, model = TEXT_MODEL) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${currentApiKey}`;
             let retries = 5;
-            let delay = 1000;
+            let backoff = 1000;
 
             for (let i = 0; i < retries; i++) {
                 try {
@@ -218,15 +218,18 @@
                     
                     if (response.ok) return data;
 
-                    // Handling Rate Limit / Quota (Error 429)
+                    // Specific Debugging for user
+                    if (response.status === 403) throw new Error("API Key Invalid hai ya Permissions nahi hain.");
+                    if (response.status === 404) throw new Error("Ye Model (`" + model + "`) abhi aapke account par available nahi hai.");
+                    
                     if (response.status === 429) {
-                        console.log(`Quota full hai, retrying in ${delay/1000}s...`);
-                        await new Promise(r => setTimeout(r, delay));
-                        delay *= 2; // Har baar wait time double hoga
+                        console.log(`Quota full. Retrying in ${backoff/1000}s...`);
+                        await new Promise(r => setTimeout(r, backoff));
+                        backoff *= 2;
                         continue;
                     }
 
-                    throw new Error(data.error?.message || "Unknown API Error");
+                    throw new Error(data.error?.message || "Server Error: " + response.status);
                 } catch (e) {
                     if (i === retries - 1) throw e;
                 }
@@ -258,11 +261,11 @@
             }
         }
 
-        // --- tool functions with safe parsing ---
+        // --- Optimized Tools ---
         async function imageToPrompt() {
             const file = document.getElementById('i2p-input').files[0];
-            if (!file) return alert("Pehle photo upload karein!");
-            toggleLoading(true, "Analyzing...");
+            if (!file) return alert("Photo select karein");
+            toggleLoading(true, "Scanning Image...");
 
             try {
                 const b64 = await new Promise(r => {
@@ -273,20 +276,20 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: "Detailed prompt likho is image ke liye. Sirf text output karein." },
+                        { text: "Write a high-quality AI image prompt for this image. Output only the prompt text." },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}]
-                }, MEDIA_MODEL);
+                }, TEXT_MODEL);
 
                 const resText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (resText) {
                     document.getElementById('i2p-text').innerText = resText;
                     document.getElementById('i2p-result-box').classList.remove('hidden');
                 } else {
-                    throw new Error("AI ne response khali bheda hai.");
+                    throw new Error("AI ne response nahi diya. API Quota check karein.");
                 }
             } catch (e) {
-                showError(e.message);
+                showError(e.message, "Analysis Error");
             } finally {
                 toggleLoading(false);
             }
@@ -294,10 +297,11 @@
 
         async function promptToImage() {
             const prompt = document.getElementById('p2i-prompt').value;
-            if (!prompt) return;
-            toggleLoading(true, "Image Ban Rahi Hai...");
+            if (!prompt) return alert("Kuch likhein pehle!");
+            toggleLoading(true, "Generating (Step 1)...");
 
             try {
+                // Try Primary Model (Imagen 3)
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${currentApiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
@@ -309,53 +313,35 @@
                 });
 
                 const data = await res.json();
+                
                 if (data.predictions && data.predictions[0]) {
                     const imgUrl = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
                     document.getElementById('p2i-img').src = imgUrl;
                     document.getElementById('p2i-result-container').classList.remove('hidden');
                 } else {
-                    throw new Error(data.error?.message || "Generation fail ho gaya. Quota check karein.");
+                    // FALLBACK: If Imagen 3 fails, use Flash Image Preview
+                    toggleLoading(true, "Retrying with Fallback Model...");
+                    const fbUrl = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_IMAGE_MODEL}:generateContent?key=${currentApiKey}`;
+                    const fbRes = await fetch(fbUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseModalities: ['IMAGE'] }
+                        })
+                    });
+                    const fbData = await fbRes.json();
+                    const fbB64 = fbData?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                    
+                    if (fbB64) {
+                        document.getElementById('p2i-img').src = `data:image/png;base64,${fbB64}`;
+                        document.getElementById('p2i-result-container').classList.remove('hidden');
+                    } else {
+                        throw new Error("Both models failed. Aapka account abhi 'Image Generation' ke liye ready nahi hai.");
+                    }
                 }
             } catch (e) {
-                showError(e.message);
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        async function generateVideo() {
-            const file = document.getElementById('video-input').files[0];
-            const prompt = document.getElementById('video-prompt').value;
-            if (!file || !prompt) return alert("Photo aur prompt dono zaruri hain!");
-            toggleLoading(true, "Creating Motion...");
-
-            try {
-                const b64 = await new Promise(r => {
-                    const rd = new FileReader();
-                    rd.onload = () => r(rd.result.split(',')[1]);
-                    rd.readAsDataURL(file);
-                });
-
-                // Gemini 2.0 Flash handles media generation requests better
-                const data = await callAI('generateContent', {
-                    contents: [{ parts: [
-                        { text: `Is image ko animate karein: ${prompt}. Return image data.` },
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}],
-                    generationConfig: { responseModalities: ["IMAGE"] }
-                }, MEDIA_MODEL);
-
-                const vidB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if (vidB64) {
-                    // Note: Flash currently returns motion as image sequences or edited result
-                    document.getElementById('video-player').src = `data:image/png;base64,${vidB64}`;
-                    document.getElementById('video-result-container').classList.remove('hidden');
-                    alert("Motion frame generated.");
-                } else {
-                    throw new Error("Video data nahi mila.");
-                }
-            } catch (e) {
-                showError(e.message);
+                showError(e.message, "Generation Fail");
             } finally {
                 toggleLoading(false);
             }
@@ -364,8 +350,8 @@
         async function editImage() {
             const file = document.getElementById('edit-input').files[0];
             const prompt = document.getElementById('edit-prompt').value;
-            if (!file || !prompt) return;
-            toggleLoading(true, "Editing...");
+            if (!file || !prompt) return alert("Photo aur Prompt dono chahiye.");
+            toggleLoading(true, "Editing Image...");
 
             try {
                 const b64 = await new Promise(r => {
@@ -376,24 +362,29 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: `Modify this image: ${prompt}` },
+                        { text: `Modify this image: ${prompt}` }, 
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
-                    generationConfig: { responseModalities: ["IMAGE"] }
-                }, MEDIA_MODEL);
+                    generationConfig: { responseModalities: ['IMAGE'] }
+                }, FALLBACK_IMAGE_MODEL);
 
                 const editB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                
                 if (editB64) {
                     document.getElementById('edit-img').src = `data:image/png;base64,${editB64}`;
                     document.getElementById('edit-result-container').classList.remove('hidden');
                 } else {
-                    throw new Error("Edit response nahi mila.");
+                    throw new Error("Image edit nahi ho payi. Account limit check karein.");
                 }
             } catch (e) {
-                showError(e.message);
+                showError(e.message, "Edit Error");
             } finally {
                 toggleLoading(false);
             }
+        }
+
+        async function generateVideo() {
+            showError("Video feature is currently in maintenance for 2.0 stability. Please use Image to Prompt.", "Feature Update");
         }
 
         function copyToClipboard(id) {
@@ -404,7 +395,7 @@
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            alert("Copy Ho Gaya!");
+            alert("Copied!");
         }
     </script>
 </body>
