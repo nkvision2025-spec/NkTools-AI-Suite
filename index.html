@@ -13,10 +13,9 @@
         .active-tab { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
         .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn-glow:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); transition: all 0.3s; }
         .tool-section { transition: all 0.4s ease; }
         .hidden { display: none; }
-        .result-img { max-height: 400px; width: auto; margin: 0 auto; border-radius: 12px; }
+        .result-img { max-height: 400px; width: auto; margin: 0 auto; border-radius: 12px; border: 2px solid #334155; }
         .api-locked-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
@@ -35,70 +34,49 @@
     <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
             <i class="fas fa-bolt text-yellow-400 text-2xl"></i>
-            <span class="text-xl font-bold tracking-tight">NkTools <span class="text-blue-500 text-sm">Pro</span></span>
+            <span class="text-xl font-bold tracking-tight">NkTools <span class="text-blue-500 text-sm">v2.1</span></span>
         </div>
         <div class="hidden lg:flex gap-4 text-sm font-medium">
-            <button onclick="switchTab('i2p')" class="tab-btn px-2 py-2" id="tab-i2p">Image se Prompt</button>
-            <button onclick="switchTab('p2i')" class="tab-btn px-2 py-2" id="tab-p2i">Prompt se Image</button>
+            <button onclick="switchTab('i2p')" class="tab-btn px-2 py-2" id="tab-i2p">Image Analysis</button>
+            <button onclick="switchTab('p2i')" class="tab-btn px-2 py-2" id="tab-p2i">Text to Image</button>
             <button onclick="switchTab('changer')" class="tab-btn px-2 py-2" id="tab-changer">Pro Changer</button>
-            <button onclick="switchTab('video')" class="tab-btn active-tab px-2 py-2" id="tab-video">AI Video</button>
-            <button onclick="switchTab('gallery')" class="tab-btn px-2 py-2" id="tab-gallery"><i class="fas fa-images mr-1"></i> Gallery</button>
+            <button onclick="switchTab('gallery')" class="tab-btn px-2 py-2" id="tab-gallery">Gallery</button>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition-all text-xl p-2 relative">
+            <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition-all text-xl p-2">
                 <i class="fas fa-cog"></i>
             </button>
-            <div id="api-status-dot" class="h-3 w-3 rounded-full bg-red-500" title="API Status"></div>
+            <div id="api-status-dot" class="h-3 w-3 rounded-full bg-red-500"></div>
         </div>
     </nav>
 
-    <!-- API Settings Modal -->
+    <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center hidden">
-        <div class="glass p-8 rounded-3xl w-full max-w-md mx-4 relative border border-blue-500/30 shadow-2xl">
+        <div class="glass p-8 rounded-3xl w-full max-w-md mx-4 relative border border-blue-500/30">
             <button onclick="toggleSettings()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">
-                <i class="fas fa-shield-alt"></i> API Key Setup
-            </h2>
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">Settings</h2>
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-500 mb-2">Google Gemini API Key</label>
                     <input type="password" id="api-key-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="Paste key here...">
                 </div>
-                <button onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm transition-all shadow-lg">KEY SAVE KAREIN</button>
-                <button onclick="deleteApiKey()" class="w-full text-red-400 text-xs hover:underline">Key Hatayein</button>
+                <button onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm transition-all">SAVE KEY</button>
+                <p class="text-[10px] text-slate-500">Tip: Agar "Quota Error" aaye toh naye project ki key use karein ya AI Studio mein billing setup check karein.</p>
             </div>
         </div>
     </div>
 
     <main class="max-w-6xl mx-auto p-4 md:p-8">
         
-        <!-- Video Tool -->
-        <section id="sec-video" class="tool-section">
-            <div class="glass p-6 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-blue-400">AI Video Motion</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('video-input').click()">
-                        <input type="file" id="video-input" class="hidden" accept="image/*" onchange="previewImage(this, 'video-prev')">
-                        <img id="video-prev-img" class="hidden h-32 w-full object-contain mx-auto">
-                        <div id="video-prev-txt"><i class="fas fa-image text-2xl mb-2 text-slate-600"></i><p class="text-xs">Photo Upload Karein</p></div>
-                    </div>
-                    <textarea id="video-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Kaisa movement chahiye?"></textarea>
-                </div>
-                <button onclick="generateVideo()" class="w-full bg-blue-600 py-4 rounded-xl font-bold btn-glow">VIDEO BANAYEIN</button>
-                <div id="video-result-container" class="mt-8 hidden text-center">
-                    <video id="video-player" class="w-full rounded-xl border-4 border-slate-800" controls loop muted></video>
-                </div>
-            </div>
-        </section>
-
         <!-- P2I Tool -->
-        <section id="sec-p2i" class="tool-section hidden">
+        <section id="sec-p2i" class="tool-section">
             <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-green-400">Prompt se Image</h1>
-                <textarea id="p2i-prompt" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl mb-6 text-sm outline-none" placeholder="Kya banana hai?"></textarea>
-                <button onclick="promptToImage()" class="w-full bg-green-600 py-4 rounded-xl font-bold">GENERATE IMAGE</button>
+                <h1 class="text-2xl font-bold mb-4 text-green-400">Generate Image from Text</h1>
+                <textarea id="p2i-prompt" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl mb-6 text-sm outline-none" placeholder="Describe the image you want..."></textarea>
+                <button onclick="generateImage()" class="w-full bg-green-600 py-4 rounded-xl font-bold hover:bg-green-500 transition-all">GENERATE IMAGE</button>
                 <div id="p2i-result-container" class="mt-8 hidden text-center">
-                    <img id="p2i-img" class="result-img border-4 border-slate-800">
+                    <img id="p2i-img" class="result-img">
+                    <button onclick="downloadImage('p2i-img')" class="mt-4 text-xs text-blue-400 hover:underline">Download Image</button>
                 </div>
             </div>
         </section>
@@ -106,16 +84,16 @@
         <!-- I2P Tool -->
         <section id="sec-i2p" class="tool-section hidden">
             <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-yellow-400">Image se Prompt</h1>
+                <h1 class="text-2xl font-bold mb-4 text-yellow-400">Image to Prompt</h1>
                 <div class="border-2 border-dashed border-slate-700 rounded-xl p-6 mb-6 text-center cursor-pointer" onclick="document.getElementById('i2p-input').click()">
                     <input type="file" id="i2p-input" class="hidden" accept="image/*" onchange="previewImage(this, 'i2p-prev')">
                     <img id="i2p-prev-img" class="hidden h-40 mx-auto rounded-lg mb-4">
-                    <div id="i2p-prev-txt"><i class="fas fa-search text-4xl mb-2 text-slate-600"></i><p>Photo Chunein</p></div>
+                    <div id="i2p-prev-txt"><i class="fas fa-cloud-upload-alt text-4xl mb-2 text-slate-600"></i><p>Upload Photo</p></div>
                 </div>
-                <button onclick="imageToPrompt()" class="w-full bg-yellow-600 py-4 rounded-xl font-bold">ANALYSIS KAREIN</button>
+                <button onclick="analyzeImage()" class="w-full bg-yellow-600 py-4 rounded-xl font-bold hover:bg-yellow-500 transition-all">GET PROMPT</button>
                 <div id="i2p-result-box" class="mt-6 p-4 bg-black/40 rounded-xl border border-slate-800 hidden">
-                    <div id="i2p-text" class="text-sm text-slate-300 italic mb-4"></div>
-                    <button onclick="copyToClipboard('i2p-text')" class="bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold">Prompt Copy Karein</button>
+                    <p id="i2p-text" class="text-sm text-slate-300 italic mb-4"></p>
+                    <button onclick="copyText('i2p-text')" class="bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold">COPY PROMPT</button>
                 </div>
             </div>
         </section>
@@ -123,18 +101,18 @@
         <!-- Changer Tool -->
         <section id="sec-changer" class="tool-section hidden">
             <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-purple-400">Pro Changer</h1>
+                <h1 class="text-2xl font-bold mb-4 text-purple-400">Pro Changer (AI Edit)</h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('edit-input').click()">
                         <input type="file" id="edit-input" class="hidden" accept="image/*" onchange="previewImage(this, 'edit-prev')">
                         <img id="edit-prev-img" class="hidden h-32 mx-auto rounded-lg">
-                        <div id="edit-prev-txt"><i class="fas fa-edit text-2xl mb-2 text-slate-600"></i><p>Upload</p></div>
+                        <div id="edit-prev-txt"><i class="fas fa-edit text-2xl mb-2 text-slate-600"></i><p>Select Photo</p></div>
                     </div>
-                    <textarea id="edit-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Kya badalna hai?"></textarea>
+                    <textarea id="edit-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="What to change?"></textarea>
                 </div>
-                <button onclick="editImage()" class="w-full bg-purple-600 py-4 rounded-xl font-bold">BADLEIN</button>
+                <button onclick="runEdit()" class="w-full bg-purple-600 py-4 rounded-xl font-bold">START EDITING</button>
                 <div id="edit-result-container" class="mt-8 hidden text-center">
-                    <img id="edit-img" class="result-img border-4 border-slate-800">
+                    <img id="edit-img" class="result-img">
                 </div>
             </div>
         </section>
@@ -142,7 +120,7 @@
         <!-- Gallery -->
         <section id="sec-gallery" class="tool-section hidden">
             <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                 <p class="col-span-full text-center text-slate-500">History jald hi aayegi.</p>
+                 <p class="col-span-full text-center text-slate-500">History stores locally in this session.</p>
             </div>
         </section>
     </main>
@@ -150,95 +128,40 @@
     <!-- Error Modal -->
     <div id="error-modal" class="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center hidden">
         <div class="glass p-6 rounded-2xl max-w-sm w-full mx-4 border border-red-500/50">
-            <h3 class="text-red-400 font-bold mb-2">System Alert</h3>
+            <h3 class="text-red-400 font-bold mb-2">Error Alert</h3>
             <p id="error-msg" class="text-xs text-slate-300 mb-6"></p>
-            <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-lg text-sm">Close</button>
+            <div class="flex flex-col gap-2">
+                <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-lg text-sm">Close</button>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="w-full bg-blue-600 py-2 rounded-lg text-sm text-center font-bold">Get New Key</a>
+            </div>
         </div>
     </div>
 
+    <!-- Loading -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/90 z-[100] flex flex-col items-center justify-center hidden">
         <div class="loader h-12 w-12 mb-4 border-4 border-slate-700 rounded-full"></div>
         <p id="loading-text" class="text-xs font-bold text-blue-400 uppercase tracking-widest"></p>
     </div>
 
     <script>
-        const API_KEY_KEY = 'nk_api_key_v2';
-        let currentApiKey = localStorage.getItem(API_KEY_KEY) || "";
+        const API_KEY_STORAGE = 'nk_api_key_v2';
+        let currentApiKey = localStorage.getItem(API_KEY_STORAGE) || "";
 
-        // CORE STABLE MODELS
-        const TEXT_MODEL = 'gemini-2.0-flash';
-        const IMAGE_MODEL = 'imagen-3.0-generate-001';
-        const FALLBACK_IMAGE_MODEL = 'gemini-2.5-flash-image-preview'; // For image generation fallback
-
-        window.onload = () => {
-            if (!currentApiKey) {
-                document.getElementById('api-lock-screen').classList.remove('hidden');
-            } else {
-                document.getElementById('api-status-dot').classList.replace('bg-red-500', 'bg-green-500');
-            }
+        // Model sets for fallback
+        const MODELS = {
+            vision: ['gemini-2.0-flash', 'gemini-1.5-flash'],
+            image: ['imagen-3.0-generate-001', 'gemini-2.5-flash-image-preview']
         };
 
-        function toggleSettings() {
-            document.getElementById('settings-modal').classList.toggle('hidden');
-        }
+        window.onload = () => {
+            if (!currentApiKey) document.getElementById('api-lock-screen').classList.remove('hidden');
+            else document.getElementById('api-status-dot').classList.replace('bg-red-500', 'bg-green-500');
+        };
 
-        function showError(msg, title = "System Alert") {
-            document.querySelector('#error-modal h3').innerText = title;
-            document.getElementById('error-msg').innerText = msg;
-            document.getElementById('error-modal').classList.remove('hidden');
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            if (key) {
-                localStorage.setItem(API_KEY_KEY, key);
-                location.reload();
-            }
-        }
-
-        function deleteApiKey() {
-            localStorage.removeItem(API_KEY_KEY);
-            location.reload();
-        }
-
-        async function callAI(endpoint, payload, model = TEXT_MODEL) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${currentApiKey}`;
-            let retries = 5;
-            let backoff = 1000;
-
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) return data;
-
-                    // Specific Debugging for user
-                    if (response.status === 403) throw new Error("API Key Invalid hai ya Permissions nahi hain.");
-                    if (response.status === 404) throw new Error("Ye Model (`" + model + "`) abhi aapke account par available nahi hai.");
-                    
-                    if (response.status === 429) {
-                        console.log(`Quota full. Retrying in ${backoff/1000}s...`);
-                        await new Promise(r => setTimeout(r, backoff));
-                        backoff *= 2;
-                        continue;
-                    }
-
-                    throw new Error(data.error?.message || "Server Error: " + response.status);
-                } catch (e) {
-                    if (i === retries - 1) throw e;
-                }
-            }
-        }
-
-        function toggleLoading(show, text = "") {
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
-            document.getElementById('loading-text').innerText = text;
+        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
+        function saveApiKey() { 
+            const k = document.getElementById('api-key-input').value.trim();
+            if(k) { localStorage.setItem(API_KEY_STORAGE, k); location.reload(); }
         }
 
         function switchTab(id) {
@@ -246,6 +169,140 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById(`sec-${id}`).classList.remove('hidden');
             document.getElementById(`tab-${id}`).classList.add('active-tab');
+        }
+
+        function toggleLoading(show, text = "") {
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+            document.getElementById('loading-text').innerText = text;
+        }
+
+        function showError(msg) {
+            document.getElementById('error-msg').innerText = msg;
+            document.getElementById('error-modal').classList.remove('hidden');
+        }
+
+        async function requestAI(model, type, payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${type}?key=${currentApiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || "Model failed");
+                return data;
+            } catch (e) {
+                console.warn(`Model ${model} failed, trying next...`);
+                throw e;
+            }
+        }
+
+        // --- Core Functions ---
+
+        async function analyzeImage() {
+            const file = document.getElementById('i2p-input').files[0];
+            if(!file) return alert("Select image first");
+            toggleLoading(true, "AI is scanning...");
+
+            const b64 = await new Promise(r => {
+                const rd = new FileReader();
+                rd.onload = () => r(rd.result.split(',')[1]);
+                rd.readAsDataURL(file);
+            });
+
+            const payload = {
+                contents: [{ parts: [
+                    { text: "Describe this image in detail as an AI prompt." },
+                    { inlineData: { mimeType: file.type, data: b64 } }
+                ]}]
+            };
+
+            // Fallback Logic for Vision
+            let success = false;
+            for(let m of MODELS.vision) {
+                try {
+                    const res = await requestAI(m, 'generateContent', payload);
+                    const txt = res?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if(txt) {
+                        document.getElementById('i2p-text').innerText = txt;
+                        document.getElementById('i2p-result-box').classList.remove('hidden');
+                        success = true;
+                        break;
+                    }
+                } catch(e) { if(m === MODELS.vision[1]) showError(e.message); }
+            }
+            toggleLoading(false);
+        }
+
+        async function generateImage() {
+            const prompt = document.getElementById('p2i-prompt').value;
+            if(!prompt) return alert("Enter prompt");
+            toggleLoading(true, "Creating Image...");
+
+            // Try Imagen 3 first
+            try {
+                const res = await requestAI('imagen-3.0-generate-001', 'predict', {
+                    instances: [{ prompt }],
+                    parameters: { sampleCount: 1 }
+                });
+                const b64 = res.predictions?.[0]?.bytesBase64Encoded;
+                if(b64) {
+                    document.getElementById('p2i-img').src = `data:image/png;base64,${b64}`;
+                    document.getElementById('p2i-result-container').classList.remove('hidden');
+                    toggleLoading(false);
+                    return;
+                }
+            } catch(e) { console.log("Imagen 3 failed, trying Flash Image..."); }
+
+            // Try Flash Image Preview as fallback
+            try {
+                const res = await requestAI('gemini-2.5-flash-image-preview', 'generateContent', {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { responseModalities: ['IMAGE'] }
+                });
+                const b64 = res?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if(b64) {
+                    document.getElementById('p2i-img').src = `data:image/png;base64,${b64}`;
+                    document.getElementById('p2i-result-container').classList.remove('hidden');
+                } else {
+                    showError("Aapki API key ka Quota 0 hai. Nayi key banayein.");
+                }
+            } catch(e) {
+                showError("Quota Error: Aapki API key limit khatam ho chuki hai.");
+            }
+            toggleLoading(false);
+        }
+
+        async function runEdit() {
+            const file = document.getElementById('edit-input').files[0];
+            const prompt = document.getElementById('edit-prompt').value;
+            if(!file || !prompt) return alert("Need photo & prompt");
+            toggleLoading(true, "Applying Changes...");
+
+            const b64 = await new Promise(r => {
+                const rd = new FileReader();
+                rd.onload = () => r(rd.result.split(',')[1]);
+                rd.readAsDataURL(file);
+            });
+
+            try {
+                const res = await requestAI('gemini-2.5-flash-image-preview', 'generateContent', {
+                    contents: [{ parts: [
+                        { text: `Modify this image based on: ${prompt}` },
+                        { inlineData: { mimeType: file.type, data: b64 } }
+                    ]}],
+                    generationConfig: { responseModalities: ['IMAGE'] }
+                });
+                const outB64 = res?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if(outB64) {
+                    document.getElementById('edit-img').src = `data:image/png;base64,${outB64}`;
+                    document.getElementById('edit-result-container').classList.remove('hidden');
+                } else {
+                    showError("Edit failed. Try a different prompt.");
+                }
+            } catch(e) { showError(e.message); }
+            toggleLoading(false);
         }
 
         function previewImage(input, pid) {
@@ -261,141 +318,16 @@
             }
         }
 
-        // --- Optimized Tools ---
-        async function imageToPrompt() {
-            const file = document.getElementById('i2p-input').files[0];
-            if (!file) return alert("Photo select karein");
-            toggleLoading(true, "Scanning Image...");
-
-            try {
-                const b64 = await new Promise(r => {
-                    const rd = new FileReader();
-                    rd.onload = () => r(rd.result.split(',')[1]);
-                    rd.readAsDataURL(file);
-                });
-
-                const data = await callAI('generateContent', {
-                    contents: [{ parts: [
-                        { text: "Write a high-quality AI image prompt for this image. Output only the prompt text." },
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}]
-                }, TEXT_MODEL);
-
-                const resText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (resText) {
-                    document.getElementById('i2p-text').innerText = resText;
-                    document.getElementById('i2p-result-box').classList.remove('hidden');
-                } else {
-                    throw new Error("AI ne response nahi diya. API Quota check karein.");
-                }
-            } catch (e) {
-                showError(e.message, "Analysis Error");
-            } finally {
-                toggleLoading(false);
-            }
+        function copyText(id) {
+            const t = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(t).then(() => alert("Copied!"));
         }
 
-        async function promptToImage() {
-            const prompt = document.getElementById('p2i-prompt').value;
-            if (!prompt) return alert("Kuch likhein pehle!");
-            toggleLoading(true, "Generating (Step 1)...");
-
-            try {
-                // Try Primary Model (Imagen 3)
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${currentApiKey}`;
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        instances: [{ prompt: prompt }], 
-                        parameters: { sampleCount: 1 } 
-                    })
-                });
-
-                const data = await res.json();
-                
-                if (data.predictions && data.predictions[0]) {
-                    const imgUrl = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
-                    document.getElementById('p2i-img').src = imgUrl;
-                    document.getElementById('p2i-result-container').classList.remove('hidden');
-                } else {
-                    // FALLBACK: If Imagen 3 fails, use Flash Image Preview
-                    toggleLoading(true, "Retrying with Fallback Model...");
-                    const fbUrl = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_IMAGE_MODEL}:generateContent?key=${currentApiKey}`;
-                    const fbRes = await fetch(fbUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            generationConfig: { responseModalities: ['IMAGE'] }
-                        })
-                    });
-                    const fbData = await fbRes.json();
-                    const fbB64 = fbData?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                    
-                    if (fbB64) {
-                        document.getElementById('p2i-img').src = `data:image/png;base64,${fbB64}`;
-                        document.getElementById('p2i-result-container').classList.remove('hidden');
-                    } else {
-                        throw new Error("Both models failed. Aapka account abhi 'Image Generation' ke liye ready nahi hai.");
-                    }
-                }
-            } catch (e) {
-                showError(e.message, "Generation Fail");
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        async function editImage() {
-            const file = document.getElementById('edit-input').files[0];
-            const prompt = document.getElementById('edit-prompt').value;
-            if (!file || !prompt) return alert("Photo aur Prompt dono chahiye.");
-            toggleLoading(true, "Editing Image...");
-
-            try {
-                const b64 = await new Promise(r => {
-                    const rd = new FileReader();
-                    rd.onload = () => r(rd.result.split(',')[1]);
-                    rd.readAsDataURL(file);
-                });
-
-                const data = await callAI('generateContent', {
-                    contents: [{ parts: [
-                        { text: `Modify this image: ${prompt}` }, 
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}],
-                    generationConfig: { responseModalities: ['IMAGE'] }
-                }, FALLBACK_IMAGE_MODEL);
-
-                const editB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                
-                if (editB64) {
-                    document.getElementById('edit-img').src = `data:image/png;base64,${editB64}`;
-                    document.getElementById('edit-result-container').classList.remove('hidden');
-                } else {
-                    throw new Error("Image edit nahi ho payi. Account limit check karein.");
-                }
-            } catch (e) {
-                showError(e.message, "Edit Error");
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        async function generateVideo() {
-            showError("Video feature is currently in maintenance for 2.0 stability. Please use Image to Prompt.", "Feature Update");
-        }
-
-        function copyToClipboard(id) {
-            const text = document.getElementById(id).innerText;
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-            alert("Copied!");
+        function downloadImage(id) {
+            const link = document.createElement('a');
+            link.download = 'nk-ai-gen.png';
+            link.href = document.getElementById(id).src;
+            link.click();
         }
     </script>
 </body>
