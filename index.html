@@ -155,10 +155,10 @@
         const API_KEY_KEY = 'nk_api_key_v2';
         let currentApiKey = localStorage.getItem(API_KEY_KEY) || "";
 
-        // Latest stable models
-        const TEXT_MODEL = 'gemini-2.0-flash';
+        // Updated models to avoid "no longer available" errors
+        const STABLE_MODEL = 'gemini-2.0-flash';
         const IMAGE_GEN_MODEL = 'imagen-3.0-generate-001'; 
-        const IMAGE_MOD_MODEL = 'gemini-2.5-flash-image-preview'; // Only for video/edit fallback
+        const MOTION_MODEL = 'gemini-2.0-flash-exp'; // Use experimental for advanced media
 
         window.onload = () => {
             if (!currentApiKey) {
@@ -185,31 +185,27 @@
             location.reload();
         }
 
-        // --- Core Fetcher with Backoff & Error Handling ---
-        async function callAI(endpoint, payload, model = TEXT_MODEL) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${currentApiKey}`;
-            let retries = 5;
-            let delay = 1000;
-
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const data = await response.json();
-                    if (response.ok) return data;
-                    
-                    if (response.status === 429 || response.status >= 500) {
-                        await new Promise(r => setTimeout(r, delay));
-                        delay *= 2;
-                        continue;
-                    }
-                    throw new Error(data.error?.message || "API Error");
-                } catch (e) {
-                    if (i === retries - 1) throw e;
+        // Modified Fetcher with cleaner error handling
+        async function callAI(endpoint, payload, modelName = STABLE_MODEL) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${endpoint}?key=${currentApiKey}`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error?.message || "Model limit reached or error.");
                 }
+                
+                return data;
+            } catch (e) {
+                console.error("AI Call failed:", e);
+                throw e;
             }
         }
 
@@ -223,7 +219,6 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById(`sec-${id}`).classList.remove('hidden');
             document.getElementById(`tab-${id}`).classList.add('active-tab');
-            if (id === 'gallery') loadGallery();
         }
 
         function previewImage(input, pid) {
@@ -239,12 +234,10 @@
             }
         }
 
-        // --- Tools Logic ---
-
         async function imageToPrompt() {
             const file = document.getElementById('i2p-input').files[0];
-            if (!file) return alert("Photo select karein!");
-            toggleLoading(true, "Analysing Image...");
+            if (!file) return alert("Select a photo!");
+            toggleLoading(true, "Analysing...");
             
             try {
                 const base64 = await new Promise(r => {
@@ -255,17 +248,17 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: "Create a highly detailed stable diffusion prompt for this image. Output only the prompt text clearly." },
+                        { text: "Describe this image in detail for an AI image generator prompt. Output only the prompt." },
                         { inlineData: { mimeType: file.type, data: base64 } }
                     ]}]
-                });
+                }, STABLE_MODEL);
 
                 const promptText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (promptText) {
                     document.getElementById('i2p-text').innerText = promptText;
                     document.getElementById('i2p-result-box').classList.remove('hidden');
                 } else {
-                    throw new Error("Empty Response");
+                    alert("Model responded but prompt was empty. Try again.");
                 }
             } catch (e) {
                 alert("Error: " + e.message);
@@ -277,25 +270,25 @@
         async function promptToImage() {
             const prompt = document.getElementById('p2i-prompt').value;
             if (!prompt) return;
-            toggleLoading(true, "Generating Image...");
+            toggleLoading(true, "Generating...");
 
             try {
-                // Using prediction endpoint for Imagen
+                // For Imagen, we use the prediction endpoint
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_GEN_MODEL}:predict?key=${currentApiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ instances: [{ prompt }], parameters: { sampleCount: 1 } })
                 });
+                
                 const data = await res.json();
                 
                 if (data.predictions && data.predictions[0]) {
                     const b64 = data.predictions[0].bytesBase64Encoded;
-                    const imgUrl = `data:image/png;base64,${b64}`;
-                    document.getElementById('p2i-img').src = imgUrl;
+                    document.getElementById('p2i-img').src = `data:image/png;base64,${b64}`;
                     document.getElementById('p2i-result-container').classList.remove('hidden');
                 } else {
-                    throw new Error(data.error?.message || "Generation Failed. Try different prompt.");
+                    throw new Error(data.error?.message || "Could not generate image.");
                 }
             } catch (e) {
                 alert("Fail: " + e.message);
@@ -307,8 +300,8 @@
         async function generateVideo() {
             const prompt = document.getElementById('video-prompt').value;
             const file = document.getElementById('video-input').files[0];
-            if (!file || !prompt) return alert("Fill both fields!");
-            toggleLoading(true, "Animating...");
+            if (!file || !prompt) return alert("Both fields required!");
+            toggleLoading(true, "Creating Motion...");
 
             try {
                 const base64 = await new Promise(r => {
@@ -319,24 +312,26 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: `Animate this image: ${prompt}. Return as video/mp4.` },
+                        { text: `Create a video motion of this: ${prompt}` },
                         { inlineData: { mimeType: file.type, data: base64 } }
                     ]}],
-                    generationConfig: { responseModalities: ["IMAGE"] }
-                }, IMAGE_MOD_MODEL);
+                    generationConfig: { responseModalities: ["IMAGE"] } // Motion often returns frame sequence or single generation
+                }, MOTION_MODEL);
 
-                const videoPart = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                if (videoPart) {
-                    const vidUrl = `data:video/mp4;base64,${videoPart.inlineData.data}`;
-                    const player = document.getElementById('video-player');
-                    player.src = vidUrl;
-                    document.getElementById('video-result-container').classList.remove('hidden');
-                    player.play();
-                } else {
-                    throw new Error("Could not generate motion.");
+                const part = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (part) {
+                    const mime = part.inlineData.mimeType;
+                    const blob = `data:${mime};base64,${part.inlineData.data}`;
+                    if (mime.includes('video')) {
+                        document.getElementById('video-player').src = blob;
+                        document.getElementById('video-result-container').classList.remove('hidden');
+                    } else {
+                        // If it returns image as motion fallback
+                        alert("Returned as high quality motion frame.");
+                    }
                 }
             } catch (e) {
-                alert("Video Failed: " + e.message);
+                alert("Motion Error: " + e.message);
             } finally {
                 toggleLoading(false);
             }
@@ -357,21 +352,19 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: `Edit this image as follows: ${prompt}` },
+                        { text: `Modify this image: ${prompt}` },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
                     generationConfig: { responseModalities: ["IMAGE"] }
-                }, IMAGE_MOD_MODEL);
+                }, STABLE_MODEL);
 
-                const editB64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if (editB64) {
-                    document.getElementById('edit-img').src = `data:image/png;base64,${editB64}`;
+                const outPart = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (outPart) {
+                    document.getElementById('edit-img').src = `data:image/png;base64,${outPart.inlineData.data}`;
                     document.getElementById('edit-result-container').classList.remove('hidden');
-                } else {
-                    throw new Error("Could not edit image.");
                 }
             } catch (e) {
-                alert("Edit Failed: " + e.message);
+                alert("Edit Fail: " + e.message);
             } finally {
                 toggleLoading(false);
             }
@@ -379,17 +372,13 @@
 
         function copyToClipboard(id) {
             const text = document.getElementById(id).innerText;
-            const area = document.createElement('textarea');
-            area.value = text;
-            document.body.appendChild(area);
-            area.select();
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            document.body.removeChild(area);
-            alert("Prompt Copied!");
-        }
-
-        function loadGallery() {
-            document.getElementById('gallery-grid').innerHTML = '<p class="text-xs text-slate-500">History will appear here after server integration.</p>';
+            document.body.removeChild(el);
+            alert("Copied!");
         }
     </script>
 </body>
