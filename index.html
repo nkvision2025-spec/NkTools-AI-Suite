@@ -26,7 +26,7 @@
     <div id="api-lock-screen" class="api-locked-overlay hidden">
         <div class="glass p-8 rounded-3xl border border-blue-500/50 max-w-sm">
             <i class="fas fa-lock text-4xl text-blue-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">Akses Band Hai</h2>
+            <h2 class="text-xl font-bold mb-2">Access Locked</h2>
             <p class="text-sm text-slate-400 mb-6">Pehle Settings mein jaakar apni API Key paste karein.</p>
             <button onclick="toggleSettings()" class="bg-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-500 transition">Settings Kholein</button>
         </div>
@@ -165,10 +165,10 @@
         const API_KEY_KEY = 'nk_api_key_v2';
         let currentApiKey = localStorage.getItem(API_KEY_KEY) || "";
 
-        // Updated models for 2026
+        // Purane models ko hata kar naye models dale gaye hain
         const TEXT_MODEL = 'gemini-2.0-flash';
         const IMAGE_MODEL = 'imagen-3.0-generate-001';
-        const IMAGE_TO_VIDEO_MODEL = 'gemini-2.5-flash-image-preview'; // Used for media-heavy tasks
+        const MEDIA_MODEL = 'gemini-2.0-flash'; // For image analysis and editing
 
         window.onload = () => {
             if (!currentApiKey) {
@@ -200,7 +200,7 @@
             location.reload();
         }
 
-        // --- Core AI Call with Exponential Backoff ---
+        // --- Core AI Call with Auto-Retry (Exponential Backoff) ---
         async function callAI(endpoint, payload, model = TEXT_MODEL) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${currentApiKey}`;
             let retries = 5;
@@ -218,10 +218,11 @@
                     
                     if (response.ok) return data;
 
-                    // Handling Rate Limit (Quota)
+                    // Handling Rate Limit / Quota (Error 429)
                     if (response.status === 429) {
+                        console.log(`Quota full hai, retrying in ${delay/1000}s...`);
                         await new Promise(r => setTimeout(r, delay));
-                        delay *= 2;
+                        delay *= 2; // Har baar wait time double hoga
                         continue;
                     }
 
@@ -257,11 +258,11 @@
             }
         }
 
-        // Tool Logic
+        // --- tool functions with safe parsing ---
         async function imageToPrompt() {
             const file = document.getElementById('i2p-input').files[0];
             if (!file) return alert("Pehle photo upload karein!");
-            toggleLoading(true, "Analysis Chalu Hai...");
+            toggleLoading(true, "Analyzing...");
 
             try {
                 const b64 = await new Promise(r => {
@@ -272,17 +273,17 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: "Detailed stable diffusion prompt likho is image ke liye. Only output prompt text." },
+                        { text: "Detailed prompt likho is image ke liye. Sirf text output karein." },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}]
-                });
+                }, MEDIA_MODEL);
 
                 const resText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (resText) {
                     document.getElementById('i2p-text').innerText = resText;
                     document.getElementById('i2p-result-box').classList.remove('hidden');
                 } else {
-                    throw new Error("Empty response from AI.");
+                    throw new Error("AI ne response khali bheda hai.");
                 }
             } catch (e) {
                 showError(e.message);
@@ -297,7 +298,6 @@
             toggleLoading(true, "Image Ban Rahi Hai...");
 
             try {
-                // Using Imagen Prediction Endpoint
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${currentApiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
@@ -314,7 +314,7 @@
                     document.getElementById('p2i-img').src = imgUrl;
                     document.getElementById('p2i-result-container').classList.remove('hidden');
                 } else {
-                    throw new Error(data.error?.message || "Generation fail ho gaya.");
+                    throw new Error(data.error?.message || "Generation fail ho gaya. Quota check karein.");
                 }
             } catch (e) {
                 showError(e.message);
@@ -327,7 +327,7 @@
             const file = document.getElementById('video-input').files[0];
             const prompt = document.getElementById('video-prompt').value;
             if (!file || !prompt) return alert("Photo aur prompt dono zaruri hain!");
-            toggleLoading(true, "Video Motion Ban Raha Hai...");
+            toggleLoading(true, "Creating Motion...");
 
             try {
                 const b64 = await new Promise(r => {
@@ -336,18 +336,21 @@
                     rd.readAsDataURL(file);
                 });
 
+                // Gemini 2.0 Flash handles media generation requests better
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: `Is image ko animate karein: ${prompt}. Output as video.` },
+                        { text: `Is image ko animate karein: ${prompt}. Return image data.` },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
                     generationConfig: { responseModalities: ["IMAGE"] }
-                }, IMAGE_TO_VIDEO_MODEL);
+                }, MEDIA_MODEL);
 
                 const vidB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
                 if (vidB64) {
-                    document.getElementById('video-player').src = `data:video/mp4;base64,${vidB64}`;
+                    // Note: Flash currently returns motion as image sequences or edited result
+                    document.getElementById('video-player').src = `data:image/png;base64,${vidB64}`;
                     document.getElementById('video-result-container').classList.remove('hidden');
+                    alert("Motion frame generated.");
                 } else {
                     throw new Error("Video data nahi mila.");
                 }
@@ -377,12 +380,14 @@
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
                     generationConfig: { responseModalities: ["IMAGE"] }
-                }, IMAGE_TO_VIDEO_MODEL);
+                }, MEDIA_MODEL);
 
                 const editB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
                 if (editB64) {
                     document.getElementById('edit-img').src = `data:image/png;base64,${editB64}`;
                     document.getElementById('edit-result-container').classList.remove('hidden');
+                } else {
+                    throw new Error("Edit response nahi mila.");
                 }
             } catch (e) {
                 showError(e.message);
