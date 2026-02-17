@@ -26,9 +26,9 @@
     <div id="api-lock-screen" class="api-locked-overlay hidden">
         <div class="glass p-8 rounded-3xl border border-blue-500/50 max-w-sm">
             <i class="fas fa-lock text-4xl text-blue-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">Access Locked</h2>
+            <h2 class="text-xl font-bold mb-2">Akses Band Hai</h2>
             <p class="text-sm text-slate-400 mb-6">Pehle Settings mein jaakar apni API Key paste karein.</p>
-            <button onclick="toggleSettings()" class="bg-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-500 transition">Open Settings</button>
+            <button onclick="toggleSettings()" class="bg-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-500 transition">Settings Kholein</button>
         </div>
     </div>
 
@@ -38,8 +38,8 @@
             <span class="text-xl font-bold tracking-tight">NkTools <span class="text-blue-500 text-sm">Pro</span></span>
         </div>
         <div class="hidden lg:flex gap-4 text-sm font-medium">
-            <button onclick="switchTab('i2p')" class="tab-btn px-2 py-2" id="tab-i2p">Image to Prompt</button>
-            <button onclick="switchTab('p2i')" class="tab-btn px-2 py-2" id="tab-p2i">Prompt to Image</button>
+            <button onclick="switchTab('i2p')" class="tab-btn px-2 py-2" id="tab-i2p">Image se Prompt</button>
+            <button onclick="switchTab('p2i')" class="tab-btn px-2 py-2" id="tab-p2i">Prompt se Image</button>
             <button onclick="switchTab('changer')" class="tab-btn px-2 py-2" id="tab-changer">Pro Changer</button>
             <button onclick="switchTab('video')" class="tab-btn active-tab px-2 py-2" id="tab-video">AI Video</button>
             <button onclick="switchTab('gallery')" class="tab-btn px-2 py-2" id="tab-gallery"><i class="fas fa-images mr-1"></i> Gallery</button>
@@ -47,7 +47,6 @@
         <div class="flex items-center gap-3">
             <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition-all text-xl p-2 relative">
                 <i class="fas fa-cog"></i>
-                <span id="api-warning-dot" class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full hidden animate-ping"></span>
             </button>
             <div id="api-status-dot" class="h-3 w-3 rounded-full bg-red-500" title="API Status"></div>
         </div>
@@ -58,15 +57,15 @@
         <div class="glass p-8 rounded-3xl w-full max-w-md mx-4 relative border border-blue-500/30 shadow-2xl">
             <button onclick="toggleSettings()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-blue-400">
-                <i class="fas fa-shield-alt"></i> API Settings
+                <i class="fas fa-shield-alt"></i> API Key Setup
             </h2>
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-500 mb-2">Google Gemini API Key</label>
                     <input type="password" id="api-key-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="Paste key here...">
                 </div>
-                <button onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm transition-all shadow-lg">SAVE KEY</button>
-                <button onclick="deleteApiKey()" class="w-full text-red-400 text-xs hover:underline">Remove Key</button>
+                <button onclick="saveApiKey()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm transition-all shadow-lg">KEY SAVE KAREIN</button>
+                <button onclick="deleteApiKey()" class="w-full text-red-400 text-xs hover:underline">Key Hatayein</button>
             </div>
         </div>
     </div>
@@ -81,12 +80,12 @@
                     <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('video-input').click()">
                         <input type="file" id="video-input" class="hidden" accept="image/*" onchange="previewImage(this, 'video-prev')">
                         <img id="video-prev-img" class="hidden h-32 w-full object-contain mx-auto">
-                        <div id="video-prev-txt"><i class="fas fa-image text-2xl mb-2 text-slate-600"></i><p class="text-xs">Upload Photo</p></div>
+                        <div id="video-prev-txt"><i class="fas fa-image text-2xl mb-2 text-slate-600"></i><p class="text-xs">Photo Upload Karein</p></div>
                     </div>
-                    <textarea id="video-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Describe movement..."></textarea>
+                    <textarea id="video-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Kaisa movement chahiye?"></textarea>
                 </div>
-                <button onclick="generateVideo()" class="w-full bg-blue-600 py-4 rounded-xl font-bold btn-glow">GENERATE VIDEO</button>
-                <div id="video-result-container" class="mt-8 hidden">
+                <button onclick="generateVideo()" class="w-full bg-blue-600 py-4 rounded-xl font-bold btn-glow">VIDEO BANAYEIN</button>
+                <div id="video-result-container" class="mt-8 hidden text-center">
                     <video id="video-player" class="w-full rounded-xl border-4 border-slate-800" controls loop muted></video>
                 </div>
             </div>
@@ -95,10 +94,10 @@
         <!-- P2I Tool -->
         <section id="sec-p2i" class="tool-section hidden">
             <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-green-400">Prompt to Image</h1>
-                <textarea id="p2i-prompt" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl mb-6 text-sm outline-none" placeholder="Describe image..."></textarea>
-                <button onclick="promptToImage()" class="w-full bg-green-600 py-4 rounded-xl font-bold">GENERATE</button>
-                <div id="p2i-result-container" class="mt-8 hidden">
+                <h1 class="text-2xl font-bold mb-4 text-green-400">Prompt se Image</h1>
+                <textarea id="p2i-prompt" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl mb-6 text-sm outline-none" placeholder="Kya banana hai?"></textarea>
+                <button onclick="promptToImage()" class="w-full bg-green-600 py-4 rounded-xl font-bold">GENERATE IMAGE</button>
+                <div id="p2i-result-container" class="mt-8 hidden text-center">
                     <img id="p2i-img" class="result-img border-4 border-slate-800">
                 </div>
             </div>
@@ -107,16 +106,16 @@
         <!-- I2P Tool -->
         <section id="sec-i2p" class="tool-section hidden">
             <div class="glass p-8 rounded-2xl max-w-3xl mx-auto">
-                <h1 class="text-2xl font-bold mb-4 text-yellow-400">Image to Prompt</h1>
+                <h1 class="text-2xl font-bold mb-4 text-yellow-400">Image se Prompt</h1>
                 <div class="border-2 border-dashed border-slate-700 rounded-xl p-6 mb-6 text-center cursor-pointer" onclick="document.getElementById('i2p-input').click()">
                     <input type="file" id="i2p-input" class="hidden" accept="image/*" onchange="previewImage(this, 'i2p-prev')">
                     <img id="i2p-prev-img" class="hidden h-40 mx-auto rounded-lg mb-4">
-                    <div id="i2p-prev-txt"><i class="fas fa-search text-4xl mb-2 text-slate-600"></i><p>Select Photo</p></div>
+                    <div id="i2p-prev-txt"><i class="fas fa-search text-4xl mb-2 text-slate-600"></i><p>Photo Chunein</p></div>
                 </div>
-                <button onclick="imageToPrompt()" class="w-full bg-yellow-600 py-4 rounded-xl font-bold">ANALYZE</button>
+                <button onclick="imageToPrompt()" class="w-full bg-yellow-600 py-4 rounded-xl font-bold">ANALYSIS KAREIN</button>
                 <div id="i2p-result-box" class="mt-6 p-4 bg-black/40 rounded-xl border border-slate-800 hidden">
                     <div id="i2p-text" class="text-sm text-slate-300 italic mb-4"></div>
-                    <button onclick="copyToClipboard('i2p-text')" class="bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold">Copy Prompt</button>
+                    <button onclick="copyToClipboard('i2p-text')" class="bg-slate-700 px-4 py-2 rounded-lg text-xs font-bold">Prompt Copy Karein</button>
                 </div>
             </div>
         </section>
@@ -131,10 +130,10 @@
                         <img id="edit-prev-img" class="hidden h-32 mx-auto rounded-lg">
                         <div id="edit-prev-txt"><i class="fas fa-edit text-2xl mb-2 text-slate-600"></i><p>Upload</p></div>
                     </div>
-                    <textarea id="edit-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Instructions..."></textarea>
+                    <textarea id="edit-prompt" class="w-full bg-slate-900/60 p-3 rounded-xl text-sm border border-slate-800" placeholder="Kya badalna hai?"></textarea>
                 </div>
-                <button onclick="editImage()" class="w-full bg-purple-600 py-4 rounded-xl font-bold">CHANGE</button>
-                <div id="edit-result-container" class="mt-8 hidden">
+                <button onclick="editImage()" class="w-full bg-purple-600 py-4 rounded-xl font-bold">BADLEIN</button>
+                <div id="edit-result-container" class="mt-8 hidden text-center">
                     <img id="edit-img" class="result-img border-4 border-slate-800">
                 </div>
             </div>
@@ -142,23 +141,34 @@
 
         <!-- Gallery -->
         <section id="sec-gallery" class="tool-section hidden">
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <p class="col-span-full text-center text-slate-500">History jald hi aayegi.</p>
+            </div>
         </section>
     </main>
 
+    <!-- Error Modal -->
+    <div id="error-modal" class="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center hidden">
+        <div class="glass p-6 rounded-2xl max-w-sm w-full mx-4 border border-red-500/50">
+            <h3 class="text-red-400 font-bold mb-2">Error Aayi Hai!</h3>
+            <p id="error-msg" class="text-xs text-slate-300 mb-6"></p>
+            <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="w-full bg-slate-800 py-2 rounded-lg text-sm">Theek Hai</button>
+        </div>
+    </div>
+
     <div id="loading-overlay" class="fixed inset-0 bg-black/90 z-[100] flex flex-col items-center justify-center hidden">
         <div class="loader h-12 w-12 mb-4 border-4 border-slate-700 rounded-full"></div>
-        <p id="loading-text" class="text-xs font-bold text-blue-400 uppercase"></p>
+        <p id="loading-text" class="text-xs font-bold text-blue-400 uppercase tracking-widest"></p>
     </div>
 
     <script>
         const API_KEY_KEY = 'nk_api_key_v2';
         let currentApiKey = localStorage.getItem(API_KEY_KEY) || "";
 
-        // Updated models to avoid "no longer available" errors
-        const STABLE_MODEL = 'gemini-2.0-flash';
-        const IMAGE_GEN_MODEL = 'imagen-3.0-generate-001'; 
-        const MOTION_MODEL = 'gemini-2.0-flash-exp'; // Use experimental for advanced media
+        // Updated models for 2026
+        const TEXT_MODEL = 'gemini-2.0-flash';
+        const IMAGE_MODEL = 'imagen-3.0-generate-001';
+        const IMAGE_TO_VIDEO_MODEL = 'gemini-2.5-flash-image-preview'; // Used for media-heavy tasks
 
         window.onload = () => {
             if (!currentApiKey) {
@@ -170,6 +180,11 @@
 
         function toggleSettings() {
             document.getElementById('settings-modal').classList.toggle('hidden');
+        }
+
+        function showError(msg) {
+            document.getElementById('error-msg').innerText = msg;
+            document.getElementById('error-modal').classList.remove('hidden');
         }
 
         function saveApiKey() {
@@ -185,27 +200,35 @@
             location.reload();
         }
 
-        // Modified Fetcher with cleaner error handling
-        async function callAI(endpoint, payload, modelName = STABLE_MODEL) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${endpoint}?key=${currentApiKey}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error?.message || "Model limit reached or error.");
+        // --- Core AI Call with Exponential Backoff ---
+        async function callAI(endpoint, payload, model = TEXT_MODEL) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${currentApiKey}`;
+            let retries = 5;
+            let delay = 1000;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) return data;
+
+                    // Handling Rate Limit (Quota)
+                    if (response.status === 429) {
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2;
+                        continue;
+                    }
+
+                    throw new Error(data.error?.message || "Unknown API Error");
+                } catch (e) {
+                    if (i === retries - 1) throw e;
                 }
-                
-                return data;
-            } catch (e) {
-                console.error("AI Call failed:", e);
-                throw e;
             }
         }
 
@@ -234,34 +257,35 @@
             }
         }
 
+        // Tool Logic
         async function imageToPrompt() {
             const file = document.getElementById('i2p-input').files[0];
-            if (!file) return alert("Select a photo!");
-            toggleLoading(true, "Analysing...");
-            
+            if (!file) return alert("Pehle photo upload karein!");
+            toggleLoading(true, "Analysis Chalu Hai...");
+
             try {
-                const base64 = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.onload = () => r(reader.result.split(',')[1]);
-                    reader.readAsDataURL(file);
+                const b64 = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = () => r(rd.result.split(',')[1]);
+                    rd.readAsDataURL(file);
                 });
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: "Describe this image in detail for an AI image generator prompt. Output only the prompt." },
-                        { inlineData: { mimeType: file.type, data: base64 } }
+                        { text: "Detailed stable diffusion prompt likho is image ke liye. Only output prompt text." },
+                        { inlineData: { mimeType: file.type, data: b64 } }
                     ]}]
-                }, STABLE_MODEL);
+                });
 
-                const promptText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (promptText) {
-                    document.getElementById('i2p-text').innerText = promptText;
+                const resText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (resText) {
+                    document.getElementById('i2p-text').innerText = resText;
                     document.getElementById('i2p-result-box').classList.remove('hidden');
                 } else {
-                    alert("Model responded but prompt was empty. Try again.");
+                    throw new Error("Empty response from AI.");
                 }
             } catch (e) {
-                alert("Error: " + e.message);
+                showError(e.message);
             } finally {
                 toggleLoading(false);
             }
@@ -270,41 +294,43 @@
         async function promptToImage() {
             const prompt = document.getElementById('p2i-prompt').value;
             if (!prompt) return;
-            toggleLoading(true, "Generating...");
+            toggleLoading(true, "Image Ban Rahi Hai...");
 
             try {
-                // For Imagen, we use the prediction endpoint
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_GEN_MODEL}:predict?key=${currentApiKey}`;
+                // Using Imagen Prediction Endpoint
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGE_MODEL}:predict?key=${currentApiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instances: [{ prompt }], parameters: { sampleCount: 1 } })
+                    body: JSON.stringify({ 
+                        instances: [{ prompt: prompt }], 
+                        parameters: { sampleCount: 1 } 
+                    })
                 });
-                
+
                 const data = await res.json();
-                
                 if (data.predictions && data.predictions[0]) {
-                    const b64 = data.predictions[0].bytesBase64Encoded;
-                    document.getElementById('p2i-img').src = `data:image/png;base64,${b64}`;
+                    const imgUrl = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                    document.getElementById('p2i-img').src = imgUrl;
                     document.getElementById('p2i-result-container').classList.remove('hidden');
                 } else {
-                    throw new Error(data.error?.message || "Could not generate image.");
+                    throw new Error(data.error?.message || "Generation fail ho gaya.");
                 }
             } catch (e) {
-                alert("Fail: " + e.message);
+                showError(e.message);
             } finally {
                 toggleLoading(false);
             }
         }
 
         async function generateVideo() {
-            const prompt = document.getElementById('video-prompt').value;
             const file = document.getElementById('video-input').files[0];
-            if (!file || !prompt) return alert("Both fields required!");
-            toggleLoading(true, "Creating Motion...");
+            const prompt = document.getElementById('video-prompt').value;
+            if (!file || !prompt) return alert("Photo aur prompt dono zaruri hain!");
+            toggleLoading(true, "Video Motion Ban Raha Hai...");
 
             try {
-                const base64 = await new Promise(r => {
+                const b64 = await new Promise(r => {
                     const rd = new FileReader();
                     rd.onload = () => r(rd.result.split(',')[1]);
                     rd.readAsDataURL(file);
@@ -312,26 +338,21 @@
 
                 const data = await callAI('generateContent', {
                     contents: [{ parts: [
-                        { text: `Create a video motion of this: ${prompt}` },
-                        { inlineData: { mimeType: file.type, data: base64 } }
+                        { text: `Is image ko animate karein: ${prompt}. Output as video.` },
+                        { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
-                    generationConfig: { responseModalities: ["IMAGE"] } // Motion often returns frame sequence or single generation
-                }, MOTION_MODEL);
+                    generationConfig: { responseModalities: ["IMAGE"] }
+                }, IMAGE_TO_VIDEO_MODEL);
 
-                const part = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                if (part) {
-                    const mime = part.inlineData.mimeType;
-                    const blob = `data:${mime};base64,${part.inlineData.data}`;
-                    if (mime.includes('video')) {
-                        document.getElementById('video-player').src = blob;
-                        document.getElementById('video-result-container').classList.remove('hidden');
-                    } else {
-                        // If it returns image as motion fallback
-                        alert("Returned as high quality motion frame.");
-                    }
+                const vidB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (vidB64) {
+                    document.getElementById('video-player').src = `data:video/mp4;base64,${vidB64}`;
+                    document.getElementById('video-result-container').classList.remove('hidden');
+                } else {
+                    throw new Error("Video data nahi mila.");
                 }
             } catch (e) {
-                alert("Motion Error: " + e.message);
+                showError(e.message);
             } finally {
                 toggleLoading(false);
             }
@@ -356,15 +377,15 @@
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}],
                     generationConfig: { responseModalities: ["IMAGE"] }
-                }, STABLE_MODEL);
+                }, IMAGE_TO_VIDEO_MODEL);
 
-                const outPart = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                if (outPart) {
-                    document.getElementById('edit-img').src = `data:image/png;base64,${outPart.inlineData.data}`;
+                const editB64 = data?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                if (editB64) {
+                    document.getElementById('edit-img').src = `data:image/png;base64,${editB64}`;
                     document.getElementById('edit-result-container').classList.remove('hidden');
                 }
             } catch (e) {
-                alert("Edit Fail: " + e.message);
+                showError(e.message);
             } finally {
                 toggleLoading(false);
             }
@@ -372,13 +393,13 @@
 
         function copyToClipboard(id) {
             const text = document.getElementById(id).innerText;
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
             document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("Copied!");
+            document.body.removeChild(temp);
+            alert("Copy Ho Gaya!");
         }
     </script>
 </body>
