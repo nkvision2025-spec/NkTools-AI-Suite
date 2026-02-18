@@ -160,18 +160,18 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Gemini API Key</label>
-                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg text-sm" placeholder="Enter API Key">
+                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg text-sm" placeholder="Paste your API Key here">
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Model Version</label>
-                    <select id="model-select" class="w-full p-3 rounded-lg text-sm">
-                        <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest Stable)</option>
-                        <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Powerful)</option>
-                        <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Default)</option>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Select or Type Model</label>
+                    <select id="model-select" class="w-full p-3 rounded-lg text-sm mb-2" onchange="handleModelChange(this.value)">
+                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+                        <option value="custom">-- Custom Model Name --</option>
                     </select>
-                    <p class="text-[9px] text-gray-600 mt-1 italic">Note: Agar error aaye, toh 'Latest Stable' ya 'Default' try karein.</p>
+                    <input type="text" id="custom-model-input" class="w-full p-3 rounded-lg text-sm hidden" placeholder="e.g. gemini-1.5-flash-8b">
                 </div>
             </div>
 
@@ -194,27 +194,56 @@
         
         let state = { 
             apiKey: localStorage.getItem(KEY_STORE) || "",
-            model: localStorage.getItem(MODEL_STORE) || "gemini-1.5-flash-latest"
+            model: localStorage.getItem(MODEL_STORE) || "gemini-1.5-flash"
         };
 
         window.onload = () => {
             if(!state.apiKey) toggleSetup();
             document.getElementById('api-key-input').value = state.apiKey;
-            document.getElementById('model-select').value = state.model;
+            
+            // Sync select dropdown
+            const selector = document.getElementById('model-select');
+            const customInput = document.getElementById('custom-model-input');
+            
+            let found = false;
+            for(let opt of selector.options) {
+                if(opt.value === state.model) {
+                    selector.value = state.model;
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                selector.value = "custom";
+                customInput.value = state.model;
+                customInput.classList.remove('hidden');
+            }
+
             document.getElementById('status-model').innerText = `Model: ${state.model}`;
         };
+
+        function handleModelChange(val) {
+            const customInput = document.getElementById('custom-model-input');
+            if(val === 'custom') customInput.classList.remove('hidden');
+            else customInput.classList.add('hidden');
+        }
 
         function toggleSetup() { document.getElementById('setup-screen').classList.toggle('hidden'); }
         
         function saveSetup() {
             const keyVal = document.getElementById('api-key-input').value.trim();
-            const modVal = document.getElementById('model-select').value;
+            const modSelect = document.getElementById('model-select').value;
+            const customMod = document.getElementById('custom-model-input').value.trim();
+            
+            const finalModel = (modSelect === 'custom') ? customMod : modSelect;
+
             if(!keyVal) return alert("API Key jaroori hai!");
+            if(!finalModel) return alert("Model name sahi likhein!");
             
             localStorage.setItem(KEY_STORE, keyVal);
-            localStorage.setItem(MODEL_STORE, modVal);
+            localStorage.setItem(MODEL_STORE, finalModel);
             state.apiKey = keyVal;
-            state.model = modVal;
+            state.model = finalModel;
             
             toggleSetup();
             location.reload();
@@ -242,22 +271,26 @@
         }
 
         async function callGemini(payload) {
-            // URL ko dynamically update karte hain base on state.model
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.model}:generateContent?key=${state.apiKey}`;
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if(!res.ok) {
-                console.error("API Error:", data);
-                if(data.error?.message?.toLowerCase().includes("not found")) {
-                    throw new Error(`Model '${state.model}' nahi mila. Settings mein jaake 'Latest Stable' ya 'Default' select karein.`);
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if(!res.ok) {
+                    // Agar model not found hai, toh hum 'gemini-1.5-flash' pe fallback try karenge
+                    if(data.error?.message?.toLowerCase().includes("not found")) {
+                        throw new Error(`Model '${state.model}' server par nahi mila. Settings mein jaake plain 'gemini-1.5-flash' type karein.`);
+                    }
+                    throw new Error(data.error?.message || "AI Connection Error");
                 }
-                throw new Error(data.error?.message || "AI Connection Error");
+                return data;
+            } catch (err) {
+                throw err;
             }
-            return data;
         }
 
         function setLoader(show, msg) {
@@ -273,7 +306,7 @@
                 const b64 = await toBase64(file);
                 const data = await callGemini({
                     contents: [{ parts: [
-                        { text: "Analyze this image and provide a high-quality prompt for AI image generation (Stable Diffusion style)." },
+                        { text: "Analyze this image and provide a high-quality prompt for AI image generation." },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}]
                 });
@@ -287,10 +320,10 @@
 
         async function runArt() {
             const p = document.getElementById('prompt-art').value;
-            if(!p) return alert("Kuch likhein!");
+            if(!p) return alert("Prompt likhein!");
             setLoader(true, "Generating Artwork...");
             try {
-                // Image generation models ke liye specific endpoint try karein
+                // Fixed endpoint for Image Generation as it's separate from Text models
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
@@ -298,7 +331,7 @@
                 });
                 const data = await res.json();
                 const b64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if(!b64) throw new Error("Image generate nahi ho saki. Prompt badal ke dekhein.");
+                if(!b64) throw new Error("Image API fail ho gayi. API key check karein.");
                 document.getElementById('out-art').src = `data:image/png;base64,${b64}`;
                 document.getElementById('res-art').classList.remove('hidden');
             } catch(e) { alert("Art Error: " + e.message); }
@@ -337,7 +370,7 @@
             setLoader(true, "Creating Storyboard...");
             try {
                 const data = await callGemini({
-                    contents: [{ parts: [{ text: `Create a professional 5-scene storyboard for a video about: ${p}. Include Visuals and Scripts.` }] }]
+                    contents: [{ parts: [{ text: `Create a professional storyboard for a video about: ${p}.` }] }]
                 });
                 document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
                 document.getElementById('res-video').classList.remove('hidden');
@@ -361,7 +394,7 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            alert("Prompt Copied!");
+            alert("Copied!");
         }
     </script>
 </body>
