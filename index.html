@@ -71,7 +71,6 @@
                 
                 <hr class="my-4 border-gray-800">
                 
-                <!-- System Status / Settings Quick Link -->
                 <div class="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
                     <div class="flex justify-between items-center mb-2">
                         <p class="text-[10px] font-bold text-gray-500 uppercase">Config</p>
@@ -108,7 +107,6 @@
                 </div>
             </section>
 
-            <!-- Other tabs same structure -->
             <section id="tab-art" class="tab-pane hidden max-w-2xl mx-auto">
                 <div class="glass-card p-6">
                     <h2 class="text-xl font-bold mb-1">Art Generator</h2>
@@ -152,7 +150,7 @@
         </main>
     </div>
 
-    <!-- SETTINGS MODAL (Updated) -->
+    <!-- SETTINGS MODAL -->
     <div id="setup-screen" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 hidden">
         <div class="glass-card p-8 w-full max-w-md">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
@@ -168,11 +166,12 @@
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Model Version</label>
                     <select id="model-select" class="w-full p-3 rounded-lg text-sm">
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Recommended)</option>
-                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Powerful)</option>
+                        <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest Stable)</option>
+                        <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Powerful)</option>
                         <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Default)</option>
                     </select>
-                    <p class="text-[9px] text-gray-600 mt-1 italic">Agar "Model Not Found" aaye toh version change karein.</p>
+                    <p class="text-[9px] text-gray-600 mt-1 italic">Note: Agar error aaye, toh 'Latest Stable' ya 'Default' try karein.</p>
                 </div>
             </div>
 
@@ -195,7 +194,7 @@
         
         let state = { 
             apiKey: localStorage.getItem(KEY_STORE) || "",
-            model: localStorage.getItem(MODEL_STORE) || "gemini-1.5-flash"
+            model: localStorage.getItem(MODEL_STORE) || "gemini-1.5-flash-latest"
         };
 
         window.onload = () => {
@@ -243,6 +242,7 @@
         }
 
         async function callGemini(payload) {
+            // URL ko dynamically update karte hain base on state.model
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.model}:generateContent?key=${state.apiKey}`;
             const res = await fetch(url, {
                 method: 'POST',
@@ -251,10 +251,11 @@
             });
             const data = await res.json();
             if(!res.ok) {
-                if(data.error?.message?.includes("not found")) {
-                    throw new Error(`Model '${state.model}' iss API version par nahi mila. Settings mein jaake version badlein.`);
+                console.error("API Error:", data);
+                if(data.error?.message?.toLowerCase().includes("not found")) {
+                    throw new Error(`Model '${state.model}' nahi mila. Settings mein jaake 'Latest Stable' ya 'Default' select karein.`);
                 }
-                throw new Error(data.error?.message || "Unknown AI Error");
+                throw new Error(data.error?.message || "AI Connection Error");
             }
             return data;
         }
@@ -266,18 +267,18 @@
 
         async function runVision() {
             const file = document.getElementById('file-v').files[0];
-            if(!file) return alert("Please upload an image first.");
-            setLoader(true, `Analyzing with ${state.model}...`);
+            if(!file) return alert("Photo upload karein.");
+            setLoader(true, `Analyzing Image...`);
             try {
                 const b64 = await toBase64(file);
                 const data = await callGemini({
                     contents: [{ parts: [
-                        { text: "Describe this image in extreme detail for a stable diffusion prompt. Focus on lighting, style, and camera angle." },
+                        { text: "Analyze this image and provide a high-quality prompt for AI image generation (Stable Diffusion style)." },
                         { inlineData: { mimeType: file.type, data: b64 } }
                     ]}]
                 });
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(!text) throw new Error("AI ne khali response bheja hai.");
+                if(!text) throw new Error("AI response empty hai.");
                 document.getElementById('txt-v').innerText = text;
                 document.getElementById('res-v').classList.remove('hidden');
             } catch(e) { alert(e.message); }
@@ -289,7 +290,7 @@
             if(!p) return alert("Kuch likhein!");
             setLoader(true, "Generating Artwork...");
             try {
-                // Using flash image generation as fallback/default
+                // Image generation models ke liye specific endpoint try karein
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`;
                 const res = await fetch(url, {
                     method: 'POST',
@@ -300,7 +301,7 @@
                 if(!b64) throw new Error("Image generate nahi ho saki. Prompt badal ke dekhein.");
                 document.getElementById('out-art').src = `data:image/png;base64,${b64}`;
                 document.getElementById('res-art').classList.remove('hidden');
-            } catch(e) { alert("Error: " + e.message); }
+            } catch(e) { alert("Art Error: " + e.message); }
             setLoader(false);
         }
 
@@ -323,7 +324,7 @@
                 });
                 const data = await res.json();
                 const outB64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if(!outB64) throw new Error("Editing fail ho gayi.");
+                if(!outB64) throw new Error("Edit apply nahi ho saka.");
                 document.getElementById('out-edit').src = `data:image/png;base64,${outB64}`;
                 document.getElementById('res-edit').classList.remove('hidden');
             } catch(e) { alert(e.message); }
@@ -332,11 +333,11 @@
 
         async function runVideo() {
             const p = document.getElementById('prompt-vid').value;
-            if(!p) return alert("Concept likhein.");
+            if(!p) return alert("Topic likhein.");
             setLoader(true, "Creating Storyboard...");
             try {
                 const data = await callGemini({
-                    contents: [{ parts: [{ text: `Generate a detailed video script and storyboard for: ${p}. Split into 5 scenes.` }] }]
+                    contents: [{ parts: [{ text: `Create a professional 5-scene storyboard for a video about: ${p}. Include Visuals and Scripts.` }] }]
                 });
                 document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
                 document.getElementById('res-video').classList.remove('hidden');
@@ -360,7 +361,7 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            alert("Copied!");
+            alert("Prompt Copied!");
         }
     </script>
 </body>
