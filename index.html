@@ -3,402 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NkTools - Smart AI Suite</title>
+    <title>NkTools - Ultimate AI Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); }
-        .active-tab { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 700; }
-        .loader { border-top-color: #3b82f6; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #010409; color: #e6edf3; margin: 0; padding: 0; }
+        
+        .glass-card { background: rgba(13, 17, 23, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(48, 54, 61, 1); border-radius: 1rem; }
+        
+        /* Sidebar/Nav Styles */
+        .nav-item { cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 0.75rem; display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #8b949e; border: 1px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(35, 134, 54, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.3); }
+        .nav-item.active i { color: #3fb950; }
+
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
         .hidden { display: none !important; }
-        select option { background: #1e293b; color: white; }
-        .preview-box { transition: all 0.3s ease; border: 2px dashed #1e293b; min-height: 250px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .preview-box:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .drop-zone { border: 2px dashed #30363d; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .drop-zone:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+        img.preview { max-width: 100%; max-height: 200px; border-radius: 0.5rem; margin-top: 10px; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- API Lock Screen -->
-    <div id="api-lock-screen" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-6 hidden">
-        <div class="glass p-10 rounded-[2.5rem] border-blue-500/50 max-w-sm shadow-2xl shadow-blue-500/10">
-            <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-key text-3xl text-blue-500"></i>
-            </div>
-            <h2 class="text-2xl font-bold mb-3 text-white">API Key Required</h2>
-            <p class="text-slate-400 mb-8 text-sm">App ko chalane ke liye aapko apni Google Gemini API Key deni hogi.</p>
-            <button onclick="toggleSettings()" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/20">Setup Kholein</button>
-        </div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-white/5">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-brain text-white"></i>
-            </div>
-            <span class="text-xl font-extrabold tracking-tight">NK<span class="text-blue-500 italic">TOOLS</span></span>
-        </div>
-        
-        <div class="hidden md:flex gap-8 text-sm font-semibold">
-            <button onclick="switchTab('vision')" class="nav-tab py-2 transition-all active-tab" id="tab-vision">Vision AI</button>
-            <button onclick="switchTab('image')" class="nav-tab py-2 transition-all text-slate-400 hover:text-white" id="tab-image">Image Gen</button>
-            <button onclick="switchTab('edit')" class="nav-tab py-2 transition-all text-slate-400 hover:text-white" id="tab-edit">Pro Editor</button>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <button onclick="toggleSettings()" class="bg-slate-800/50 hover:bg-slate-700 h-10 w-10 rounded-full flex items-center justify-center transition-all border border-white/5">
-                <i class="fas fa-sliders-h text-slate-300"></i>
-            </button>
-            <div id="status-indicator" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
-                <div class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
-                <span class="text-[10px] font-bold text-red-500 uppercase">Offline</span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Navigation (Simple) -->
-    <div class="md:hidden glass fixed bottom-0 left-0 right-0 z-50 flex justify-around p-4 border-t border-white/5">
-        <button onclick="switchTab('vision')" class="text-blue-500 flex flex-col items-center gap-1"><i class="fas fa-eye"></i><span class="text-[10px]">Vision</span></button>
-        <button onclick="switchTab('image')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fas fa-paint-brush"></i><span class="text-[10px]">Image</span></button>
-        <button onclick="switchTab('edit')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fas fa-wand-magic-sparkles"></i><span class="text-[10px]">Edit</span></button>
-    </div>
-
-    <!-- Settings Panel -->
-    <div id="settings-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-4">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-blue-500/30 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2 text-white"><i class="fas fa-cog text-blue-500"></i> Settings</h2>
-                <button onclick="toggleSettings()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="space-y-6">
+    <!-- Top Navbar -->
+    <header class="border-b border-gray-800 bg-[#0d1117] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-microchip"></i>
+                </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2 ml-1">Gemini API Key</label>
-                    <input type="password" id="api-key-input" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-5 py-4 text-sm focus:border-blue-500 outline-none transition-all text-white" placeholder="Paste Key Here">
+                    <h1 class="font-bold text-lg leading-tight">NkTools <span class="text-blue-500 text-xs px-1.5 py-0.5 border border-blue-500 rounded ml-1">PRO</span></h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Baki ke tools yahan hain ↓</p>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2 ml-1">Vision Model</label>
-                        <select id="vision-model-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-xs outline-none focus:border-blue-500 text-white">
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                            <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2 ml-1">Image Model</label>
-                        <select id="image-model-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-xs outline-none focus:border-blue-500 text-white">
-                            <option value="imagen-3.0-generate-001" selected>Imagen 3</option>
-                            <option value="gemini-2.5-flash-image-preview">Flash Preview</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all text-white">SAVE & RELOAD</button>
             </div>
+            <button onclick="toggleSetup()" class="p-2 text-gray-400 hover:text-white transition-colors"><i class="fas fa-key"></i></button>
         </div>
-    </div>
+    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto p-4 md:py-12 mb-20 md:mb-0">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
         
-        <!-- Tab: Vision AI -->
-        <section id="sec-vision" class="tool-section">
-            <div class="glass p-6 md:p-8 rounded-[2rem] border-white/5 shadow-xl">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-12 w-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-eye text-yellow-500 text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Image Analyzer</h2>
-                        <p class="text-slate-400 text-xs">Photo ko explain aur prompt banayein</p>
-                    </div>
+        <!-- Sidebar Navigation (ALWAYS VISIBLE) -->
+        <aside class="w-full md:w-64 p-4 border-r border-gray-800 bg-[#0d1117]">
+            <div class="flex flex-col gap-2">
+                <div onclick="switchTab('vision')" id="btn-vision" class="nav-item active">
+                    <i class="fas fa-eye w-5"></i>
+                    <span class="font-semibold text-sm">Vision AI</span>
                 </div>
-
-                <div class="preview-box rounded-3xl p-4 text-center cursor-pointer overflow-hidden" onclick="document.getElementById('vision-input').click()">
-                    <input type="file" id="vision-input" class="hidden" accept="image/*" onchange="handlePreview(this, 'vision')">
-                    
-                    <div id="vision-placeholder" class="py-10">
-                        <i class="fas fa-cloud-upload-alt text-5xl mb-4 text-slate-700"></i>
-                        <p class="text-slate-500 font-medium">Photo Select Karein</p>
-                    </div>
-                    
-                    <div id="vision-preview-container" class="hidden w-full">
-                        <img id="vision-img" class="max-h-80 mx-auto rounded-2xl shadow-2xl">
-                    </div>
+                <div onclick="switchTab('art')" id="btn-art" class="nav-item">
+                    <i class="fas fa-paint-brush w-5"></i>
+                    <span class="font-semibold text-sm">Art Generator</span>
                 </div>
-
-                <button onclick="runVision()" class="w-full mt-8 bg-gradient-to-r from-blue-600 to-blue-700 py-5 rounded-2xl font-bold hover:scale-[1.01] transition-all shadow-xl shadow-blue-900/20 text-white uppercase tracking-wider">Analyze Karo</button>
-
-                <div id="vision-result" class="mt-8 p-6 bg-slate-900/50 rounded-2xl border border-white/5 hidden">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">AI Description</span>
-                        <button onclick="copyToClipboard('vision-text')" class="text-slate-400 hover:text-white text-xs"><i class="fas fa-copy"></i> Copy</button>
-                    </div>
-                    <p id="vision-text" class="text-sm text-slate-300 leading-relaxed italic whitespace-pre-wrap"></p>
+                <div onclick="switchTab('edit')" id="btn-edit" class="nav-item">
+                    <i class="fas fa-wand-magic-sparkles w-5"></i>
+                    <span class="font-semibold text-sm">Image Editor</span>
                 </div>
-            </div>
-        </section>
-
-        <!-- Tab: Image Gen -->
-        <section id="sec-image" class="tool-section hidden">
-            <div class="glass p-8 rounded-[2rem] border-white/5 shadow-xl">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-12 w-12 bg-green-500/10 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-paint-brush text-green-500 text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Magic Generator</h2>
-                        <p class="text-slate-400 text-xs">Text se amazing photo banayein</p>
-                    </div>
+                <div onclick="switchTab('video')" id="btn-video" class="nav-item">
+                    <i class="fas fa-film w-5"></i>
+                    <span class="font-semibold text-sm">Video Planner</span>
                 </div>
-
-                <textarea id="image-prompt" class="w-full bg-slate-900/50 border border-slate-800 p-5 rounded-2xl mb-6 text-sm outline-none focus:border-green-500 min-h-[120px] transition-all text-white" placeholder="Kya banana chahte hain? (E.g. A space warrior on Mars)"></textarea>
                 
-                <button onclick="runImageGen()" class="w-full bg-gradient-to-r from-green-600 to-emerald-700 py-5 rounded-2xl font-bold transition-all shadow-xl shadow-green-900/20 text-white uppercase tracking-wider">Generate Karo</button>
-
-                <div id="image-result-container" class="mt-10 hidden text-center">
-                    <img id="generated-img" class="rounded-3xl shadow-2xl border-4 border-white/5 max-w-full h-auto mx-auto">
-                    <button onclick="downloadImg('generated-img')" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-bold text-xs"><i class="fas fa-download mr-2"></i>Download</button>
+                <hr class="my-4 border-gray-800">
+                
+                <div class="p-3 bg-gray-900/50 rounded-lg">
+                    <p class="text-[10px] font-bold text-gray-500 mb-2 uppercase">System Status</p>
+                    <div class="flex items-center gap-2 text-xs text-green-500">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        AI Engine Ready
+                    </div>
                 </div>
             </div>
-        </section>
+        </aside>
 
-        <!-- Tab: Editor -->
-        <section id="sec-edit" class="tool-section hidden">
-            <div class="glass p-8 rounded-[2rem] border-white/5 shadow-xl">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="h-12 w-12 bg-purple-500/10 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-wand-magic-sparkles text-purple-500 text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">AI Pro Editor</h2>
-                        <p class="text-slate-400 text-xs">Photo mein kuch bhi add ya edit karein</p>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <div class="preview-box rounded-3xl p-4 text-center cursor-pointer bg-slate-900/20" onclick="document.getElementById('edit-input').click()">
-                        <input type="file" id="edit-input" class="hidden" accept="image/*" onchange="handlePreview(this, 'edit')">
-                        <div id="edit-placeholder">
-                            <i class="fas fa-image text-3xl mb-2 text-slate-700"></i>
-                            <p class="text-xs font-bold text-slate-500 uppercase">Select Photo</p>
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 md:p-8 bg-[#010409]">
+            
+            <!-- Tab 1: Vision AI -->
+            <section id="tab-vision" class="tab-pane max-w-2xl mx-auto">
+                <div class="glass-card p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-1">Image to Prompt</h2>
+                    <p class="text-sm text-gray-400 mb-6">Photo upload karein aur best AI prompt payein.</p>
+                    
+                    <div class="drop-zone" onclick="document.getElementById('file-v').click()">
+                        <input type="file" id="file-v" class="hidden" accept="image/*" onchange="handlePreview(this, 'prev-v', 'zone-v-txt')">
+                        <div id="zone-v-txt" class="text-center">
+                            <i class="fas fa-upload text-gray-600 text-2xl mb-2"></i>
+                            <p class="text-xs text-gray-500 font-bold uppercase">Click to Upload</p>
                         </div>
-                        <img id="edit-img" class="hidden max-h-48 mx-auto rounded-xl">
+                        <img id="prev-v" class="preview hidden">
                     </div>
-                    <textarea id="edit-instructions" class="w-full bg-slate-900/50 border border-slate-800 p-5 rounded-3xl text-sm outline-none focus:border-purple-500 h-full text-white" placeholder="Kya badalna hai? (E.g. Change sky to red, Add a cat)"></textarea>
+                    
+                    <button onclick="runVision()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-bold transition-all shadow-lg shadow-blue-900/20">ANALYZE IMAGE</button>
+                    
+                    <div id="res-v" class="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-800 hidden">
+                        <p id="txt-v" class="text-sm text-gray-300 italic"></p>
+                    </div>
                 </div>
+            </section>
 
-                <button onclick="runEdit()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-700 py-5 rounded-2xl font-bold transition-all text-white uppercase tracking-wider">Edit Karo</button>
-
-                <div id="edit-result-container" class="mt-10 hidden text-center">
-                    <img id="edited-img" class="rounded-3xl shadow-2xl mx-auto border-4 border-white/5 max-w-full">
+            <!-- Tab 2: Art Generator -->
+            <section id="tab-art" class="tab-pane hidden max-w-2xl mx-auto">
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold mb-1">AI Art Generator</h2>
+                    <p class="text-sm text-gray-400 mb-6">Text se high-quality images banayein.</p>
+                    <textarea id="prompt-art" class="w-full bg-[#0d1117] border border-gray-800 p-4 rounded-lg text-sm mb-4 outline-none focus:border-green-500 min-h-[100px]" placeholder="Explain your imagination..."></textarea>
+                    <button onclick="runArt()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-lg font-bold">GENERATE ART</button>
+                    <div id="res-art" class="mt-8 text-center hidden">
+                        <img id="out-art" class="rounded-lg shadow-2xl mx-auto border border-gray-800">
+                    </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <!-- UI Helpers -->
-    <div id="global-loader" class="fixed inset-0 z-[150] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center hidden">
-        <div class="loader h-16 w-16 border-4 border-slate-800 rounded-full mb-6"></div>
-        <p id="loader-status" class="text-blue-400 font-bold text-[10px] uppercase tracking-[0.3em]">AI is working...</p>
+            <!-- Tab 3: Editor -->
+            <section id="tab-edit" class="tab-pane hidden max-w-2xl mx-auto">
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold mb-1">AI Image Editor</h2>
+                    <p class="text-sm text-gray-400 mb-6">Photo mein kuch bhi change karein.</p>
+                    <div class="grid gap-4 mb-4">
+                        <div class="drop-zone" onclick="document.getElementById('file-e').click()">
+                            <input type="file" id="file-e" class="hidden" accept="image/*" onchange="handlePreview(this, 'prev-e', 'zone-e-txt')">
+                            <div id="zone-e-txt" class="text-xs text-gray-600 font-bold">SOURCE IMAGE</div>
+                            <img id="prev-e" class="preview hidden">
+                        </div>
+                        <textarea id="prompt-edit" class="w-full bg-[#0d1117] border border-gray-800 p-4 rounded-lg text-sm outline-none focus:border-purple-500" placeholder="Kya change karna hai? (e.g. Add a hat)"></textarea>
+                    </div>
+                    <button onclick="runEdit()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-lg font-bold">APPLY CHANGES</button>
+                    <div id="res-edit" class="mt-6 hidden"><img id="out-edit" class="rounded-lg mx-auto"></div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Video Planner -->
+            <section id="tab-video" class="tab-pane hidden max-w-2xl mx-auto">
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold mb-1">Video Planner</h2>
+                    <p class="text-sm text-gray-400 mb-6">AI Storyboard aur Script generator.</p>
+                    <input type="text" id="prompt-vid" class="w-full bg-[#0d1117] border border-gray-800 p-4 rounded-lg mb-4 text-sm outline-none focus:border-orange-500" placeholder="Video topic ya concept...">
+                    <button onclick="runVideo()" class="w-full bg-orange-600 hover:bg-orange-500 py-3 rounded-lg font-bold">CREATE STORYBOARD</button>
+                    <div id="res-video" class="mt-6 p-4 bg-gray-900 rounded-lg hidden">
+                        <p id="txt-video" class="text-sm text-gray-300 whitespace-pre-wrap"></p>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <div id="error-alert" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm hidden">
-        <div class="bg-red-500 text-white p-4 rounded-2xl shadow-2xl flex gap-3">
-            <i class="fas fa-exclamation-circle mt-1"></i>
-            <p id="error-txt" class="text-xs font-medium"></p>
+    <!-- API Setup Modal -->
+    <div id="setup-screen" class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 hidden">
+        <div class="glass-card p-8 w-full max-w-sm text-center">
+            <h2 class="text-xl font-bold mb-4">Settings</h2>
+            <input type="password" id="api-key-input" class="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg mb-4 text-center text-sm outline-none focus:border-blue-500" placeholder="Enter Gemini API Key">
+            <button onclick="saveSetup()" class="w-full bg-blue-600 py-3 rounded-lg font-bold mb-2">Save Key</button>
+            <button onclick="toggleSetup()" class="text-gray-500 text-xs uppercase font-bold tracking-widest mt-2">Close</button>
         </div>
+    </div>
+
+    <!-- Universal Loader -->
+    <div id="loader-overlay" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+        <div class="loader mb-4"></div>
+        <p id="load-msg" class="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] animate-pulse">Running Model...</p>
     </div>
 
     <script>
-        const STORAGE_KEY = 'nk_tools_pro_v4';
-        let config = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { key: "", visionModel: "gemini-1.5-flash", imageModel: "imagen-3.0-generate-001" };
+        const KEY = 'nk_pro_suite_key';
+        let state = { apiKey: localStorage.getItem(KEY) || "" };
 
         window.onload = () => {
-            if(!config.key) {
-                document.getElementById('api-lock-screen').classList.remove('hidden');
-            } else {
-                document.getElementById('api-key-input').value = config.key;
-                document.getElementById('vision-model-select').value = config.visionModel;
-                document.getElementById('image-model-select').value = config.imageModel;
-                updateStatus(true);
-            }
+            if(!state.apiKey) toggleSetup();
+            else document.getElementById('api-key-input').value = state.apiKey;
         };
 
-        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
+        function toggleSetup() { document.getElementById('setup-screen').classList.toggle('hidden'); }
         
-        function saveSettings() {
+        function saveSetup() {
             const val = document.getElementById('api-key-input').value.trim();
-            if(!val) return alert("API Key Enter Karein!");
-            config = { 
-                key: val, 
-                visionModel: document.getElementById('vision-model-select').value,
-                imageModel: document.getElementById('image-model-select').value 
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+            if(!val) return;
+            localStorage.setItem(KEY, val);
+            state.apiKey = val;
+            toggleSetup();
             location.reload();
         }
 
-        function updateStatus(active) {
-            const indicator = document.getElementById('status-indicator');
-            indicator.innerHTML = active ? 
-                `<div class="h-2 w-2 rounded-full bg-green-500"></div><span class="text-[10px] font-bold text-green-500 uppercase">Ready</span>` :
-                `<div class="h-2 w-2 rounded-full bg-red-500"></div><span class="text-[10px] font-bold text-red-500 uppercase">Offline</span>`;
-        }
-
         function switchTab(id) {
-            document.querySelectorAll('.tool-section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-tab').forEach(b => {
-                b.classList.remove('active-tab');
-                b.classList.add('text-slate-400');
-            });
-            document.getElementById(`sec-${id}`).classList.remove('hidden');
-            document.getElementById(`tab-${id}`)?.classList.add('active-tab');
-            document.getElementById(`tab-${id}`)?.classList.remove('text-slate-400');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`tab-${id}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${id}`).classList.add('active');
         }
 
-        function handlePreview(input, type) {
+        function handlePreview(input, imgId, txtId) {
             const file = input.files[0];
             if(file) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    const img = document.getElementById(`${type}-img`);
-                    const placeholder = document.getElementById(`${type}-placeholder`);
-                    const container = document.getElementById(`${type}-preview-container`);
-                    
-                    if(img) {
-                        img.src = e.target.result;
-                        img.classList.remove('hidden');
-                    }
-                    if(placeholder) placeholder.classList.add('hidden');
-                    if(container) container.classList.remove('hidden');
+                    const img = document.getElementById(imgId);
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById(txtId).classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function toggleLoading(show, msg) {
-            document.getElementById('global-loader').classList.toggle('hidden', !show);
-            if(msg) document.getElementById('loader-status').innerText = msg;
-        }
-
-        function showError(msg) {
-            document.getElementById('error-txt').innerText = msg;
-            const el = document.getElementById('error-alert');
-            el.classList.remove('hidden');
-            setTimeout(() => el.classList.add('hidden'), 5000);
-        }
-
-        async function apiCall(url, body) {
+        async function callGemini(model, payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
-            if(!res.ok) throw new Error(data.error?.message || "Request Failed");
+            if(!res.ok) throw new Error(data.error?.message || "Error");
             return data;
         }
 
-        async function runVision() {
-            const input = document.getElementById('vision-input');
-            if(!input.files[0]) return alert("Photo upload karein!");
-            toggleLoading(true, "AI Analyzing...");
-            const b64 = await toBase64(input.files[0]);
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.visionModel}:generateContent?key=${config.key}`;
-                const res = await apiCall(url, {
-                    contents: [{ parts: [
-                        { text: "Describe this image for AI prompt generation." },
-                        { inlineData: { mimeType: input.files[0].type, data: b64 } }
-                    ]}]
-                });
-                const txt = res.candidates?.[0]?.content?.parts?.[0]?.text;
-                document.getElementById('vision-text').innerText = txt || "No response";
-                document.getElementById('vision-result').classList.remove('hidden');
-            } catch(e) { showError(e.message); }
-            toggleLoading(false);
+        function setLoader(show, msg) {
+            document.getElementById('loader-overlay').classList.toggle('hidden', !show);
+            if(msg) document.getElementById('load-msg').innerText = msg;
         }
 
-        async function runImageGen() {
-            const prompt = document.getElementById('image-prompt').value;
-            if(!prompt) return alert("Kuch likhein!");
-            toggleLoading(true, "Creating Art...");
+        // --- Tools Logic (Using Stable Gemini 2.5 Flash) ---
+
+        async function runVision() {
+            const file = document.getElementById('file-v').files[0];
+            if(!file) return alert("Photo select karein!");
+            setLoader(true, "Analyzing with Gemini 2.5...");
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.imageModel}:predict?key=${config.key}`;
-                const res = await apiCall(url, {
-                    instances: [{ prompt }],
-                    parameters: { sampleCount: 1 }
+                const b64 = await toBase64(file);
+                const data = await callGemini('gemini-2.5-flash-preview-09-2025', {
+                    contents: [{ parts: [
+                        { text: "Detailed prompt for AI image generation based on this style." },
+                        { inlineData: { mimeType: file.type, data: b64 } }
+                    ]}]
                 });
-                const b64 = res.predictions?.[0]?.bytesBase64Encoded;
-                if(b64) {
-                    document.getElementById('generated-img').src = `data:image/png;base64,${b64}`;
-                    document.getElementById('image-result-container').classList.remove('hidden');
-                }
-            } catch(e) {
-                // Flash Fallback
+                document.getElementById('txt-v').innerText = data.candidates[0].content.parts[0].text;
+                document.getElementById('res-v').classList.remove('hidden');
+            } catch(e) { alert(e.message); }
+            setLoader(false);
+        }
+
+        async function runArt() {
+            const p = document.getElementById('prompt-art').value;
+            if(!p) return alert("Prompt likhein!");
+            setLoader(true, "Imagen 4.0 Generating...");
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${state.apiKey}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({ instances: { prompt: p }, parameters: { sampleCount: 1 } })
+                });
+                const data = await res.json();
+                const b64 = data.predictions?.[0]?.bytesBase64Encoded;
+                if(!b64) throw new Error("Empty Response - Quota Exceeded?");
+                document.getElementById('out-art').src = `data:image/png;base64,${b64}`;
+                document.getElementById('res-art').classList.remove('hidden');
+            } catch(e) { 
+                // Fallback attempt
                 try {
-                    const fbUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${config.key}`;
-                    const fbRes = await apiCall(fbUrl, {
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseModalities: ["IMAGE"] }
+                    setLoader(true, "Retrying with Flash Image...");
+                    const fRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ contents: [{parts:[{text:p}]}], generationConfig: { responseModalities:['IMAGE'] } })
                     });
-                    const fbB64 = fbRes.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                    if(fbB64) {
-                        document.getElementById('generated-img').src = `data:image/png;base64,${fbB64}`;
-                        document.getElementById('image-result-container').classList.remove('hidden');
-                    }
-                } catch(e2) { showError(e2.message); }
+                    const fData = await fRes.json();
+                    const fb64 = fData.candidates[0].content.parts.find(p => p.inlineData).inlineData.data;
+                    document.getElementById('out-art').src = `data:image/png;base64,${fb64}`;
+                    document.getElementById('res-art').classList.remove('hidden');
+                } catch(e2) { alert("Sare tools ki limit khatam hai: " + e2.message); }
             }
-            toggleLoading(false);
+            setLoader(false);
         }
 
         async function runEdit() {
-            const file = document.getElementById('edit-input').files[0];
-            const prompt = document.getElementById('edit-instructions').value;
-            if(!file || !prompt) return alert("Photo aur instruction dono chahiye!");
-            toggleLoading(true, "Editing...");
-            const b64 = await toBase64(file);
+            const file = document.getElementById('file-e').files[0];
+            const p = document.getElementById('prompt-edit').value;
+            if(!file || !p) return alert("Select image & enter change!");
+            setLoader(true, "Editing Image...");
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${config.key}`;
-                const res = await apiCall(url, {
-                    contents: [{ parts: [
-                        { text: prompt },
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}],
-                    generationConfig: { responseModalities: ["IMAGE"] }
+                const b64 = await toBase64(file);
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        contents: [{ parts: [
+                            { text: "Change image as per: " + p },
+                            { inlineData: { mimeType: file.type, data: b64 } }
+                        ]}],
+                        generationConfig: { responseModalities: ['IMAGE'] }
+                    })
                 });
-                const out = res.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if(out) {
-                    document.getElementById('edited-img').src = `data:image/png;base64,${out}`;
-                    document.getElementById('edit-result-container').classList.remove('hidden');
-                }
-            } catch(e) { showError(e.message); }
-            toggleLoading(false);
+                const data = await res.json();
+                const outB64 = data.candidates[0].content.parts.find(p => p.inlineData).inlineData.data;
+                document.getElementById('out-edit').src = `data:image/png;base64,${outB64}`;
+                document.getElementById('res-edit').classList.remove('hidden');
+            } catch(e) { alert(e.message); }
+            setLoader(false);
+        }
+
+        async function runVideo() {
+            const p = document.getElementById('prompt-vid').value;
+            if(!p) return alert("Enter concept!");
+            setLoader(true, "Planning Script...");
+            try {
+                const data = await callGemini('gemini-2.5-flash-preview-09-2025', {
+                    contents: [{ parts: [{ text: `Create a professional 5-scene video storyboard with visual descriptions and audio script for: ${p}` }] }],
+                    tools: [{ "google_search": {} }]
+                });
+                document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
+                document.getElementById('res-video').classList.remove('hidden');
+            } catch(e) { alert(e.message); }
+            setLoader(false);
         }
 
         function toBase64(file) {
-            return new Promise(r => {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onload = () => r(reader.result.split(',')[1]);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.readAsDataURL(file);
             });
-        }
-
-        function copyToClipboard(id) {
-            const val = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(val).then(() => alert("Copied!"));
-        }
-
-        function downloadImg(id) {
-            const a = document.createElement('a');
-            a.href = document.getElementById(id).src;
-            a.download = `nk_ai_${Date.now()}.png`;
-            a.click();
         }
     </script>
 </body>
