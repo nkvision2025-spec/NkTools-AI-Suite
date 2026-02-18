@@ -26,7 +26,9 @@
         img.preview { max-width: 100%; max-height: 200px; border-radius: 0.5rem; margin-top: 10px; }
         
         input, select, textarea { background: #0d1117 !important; border: 1px solid #30363d !important; color: white !important; outline: none; transition: 0.2s; }
-        input:focus, select:focus { border-color: #3b82f6 !important; }
+        input:focus { border-color: #3b82f6 !important; }
+
+        .error-toast { background: #440505; border-left: 4px solid #f85149; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -39,7 +41,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">NkTools <span class="text-blue-500 text-xs px-1.5 py-0.5 border border-blue-500 rounded ml-1">PRO</span></h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">AI Power in your pocket</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Ready for use</p>
                 </div>
             </div>
             <button onclick="toggleSetup()" class="w-10 h-10 rounded-full hover:bg-gray-800 flex items-center justify-center transition-colors">
@@ -60,10 +62,6 @@
                     <i class="fas fa-paint-brush w-5"></i>
                     <span class="font-semibold text-sm">Art Generator</span>
                 </div>
-                <div onclick="switchTab('edit')" id="btn-edit" class="nav-item">
-                    <i class="fas fa-wand-magic-sparkles w-5"></i>
-                    <span class="font-semibold text-sm">Image Editor</span>
-                </div>
                 <div onclick="switchTab('video')" id="btn-video" class="nav-item">
                     <i class="fas fa-film w-5"></i>
                     <span class="font-semibold text-sm">Video Planner</span>
@@ -74,10 +72,10 @@
                 <div class="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
                     <div class="flex justify-between items-center mb-2">
                         <p class="text-[10px] font-bold text-gray-500 uppercase">Config</p>
-                        <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                        <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
                     </div>
                     <p id="status-model" class="text-[11px] text-blue-400 font-mono truncate">Model: Loading...</p>
-                    <button onclick="toggleSetup()" class="mt-3 w-full py-1.5 text-[10px] font-bold bg-gray-800 hover:bg-gray-700 rounded uppercase tracking-wider transition-colors">Change Model/Key</button>
+                    <button onclick="toggleSetup()" class="mt-3 w-full py-1.5 text-[10px] font-bold bg-gray-800 hover:bg-gray-700 rounded uppercase tracking-wider transition-colors">Settings</button>
                 </div>
             </div>
         </aside>
@@ -87,7 +85,7 @@
             <section id="tab-vision" class="tab-pane max-w-2xl mx-auto">
                 <div class="glass-card p-6 shadow-xl">
                     <h2 class="text-xl font-bold mb-1">Vision AI</h2>
-                    <p class="text-sm text-gray-400 mb-6">Photo upload karein aur best AI prompt payein.</p>
+                    <p class="text-sm text-gray-400 mb-6">Analyze images with Google Gemini.</p>
                     
                     <div class="drop-zone" onclick="document.getElementById('file-v').click()">
                         <input type="file" id="file-v" class="hidden" accept="image/*" onchange="handlePreview(this, 'prev-v', 'zone-v-txt')">
@@ -98,11 +96,10 @@
                         <img id="prev-v" class="preview hidden">
                     </div>
                     
-                    <button onclick="runVision()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]">ANALYZE IMAGE</button>
+                    <button onclick="runVision()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold transition-all shadow-lg active:scale-[0.98]">RUN ANALYSIS</button>
                     
                     <div id="res-v" class="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-800 hidden">
                         <p id="txt-v" class="text-sm text-gray-300 italic leading-relaxed"></p>
-                        <button onclick="copyText('txt-v')" class="mt-2 text-xs text-blue-400 hover:underline">Copy Prompt</button>
                     </div>
                 </div>
             </section>
@@ -110,38 +107,21 @@
             <section id="tab-art" class="tab-pane hidden max-w-2xl mx-auto">
                 <div class="glass-card p-6">
                     <h2 class="text-xl font-bold mb-1">Art Generator</h2>
-                    <p class="text-sm text-gray-400 mb-6">Text se high-quality images banayein.</p>
-                    <textarea id="prompt-art" class="w-full p-4 rounded-xl text-sm mb-4 min-h-[120px]" placeholder="Explain your imagination..."></textarea>
-                    <button onclick="runArt()" class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold active:scale-[0.98]">GENERATE ART</button>
+                    <p class="text-sm text-gray-400 mb-6">Create images from text prompts.</p>
+                    <textarea id="prompt-art" class="w-full p-4 rounded-xl text-sm mb-4 min-h-[120px]" placeholder="A futuristic city in the style of cyberpunk..."></textarea>
+                    <button onclick="runArt()" class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold">GENERATE ART</button>
                     <div id="res-art" class="mt-8 text-center hidden">
-                        <img id="out-art" class="rounded-xl shadow-2xl mx-auto border border-gray-800 max-w-full h-auto">
+                        <img id="out-art" class="rounded-xl shadow-2xl mx-auto border border-gray-800 max-w-full">
                     </div>
-                </div>
-            </section>
-
-            <section id="tab-edit" class="tab-pane hidden max-w-2xl mx-auto">
-                <div class="glass-card p-6">
-                    <h2 class="text-xl font-bold mb-1">Image Editor</h2>
-                    <p class="text-sm text-gray-400 mb-6">Gemini se image edit karein.</p>
-                    <div class="grid gap-4 mb-4">
-                        <div class="drop-zone" onclick="document.getElementById('file-e').click()">
-                            <input type="file" id="file-e" class="hidden" accept="image/*" onchange="handlePreview(this, 'prev-e', 'zone-e-txt')">
-                            <div id="zone-e-txt" class="text-xs text-gray-600 font-bold uppercase tracking-widest">Source Image</div>
-                            <img id="prev-e" class="preview hidden">
-                        </div>
-                        <textarea id="prompt-edit" class="w-full p-4 rounded-xl text-sm min-h-[80px]" placeholder="Kya badalna hai? (e.g. Change hair color to blue)"></textarea>
-                    </div>
-                    <button onclick="runEdit()" class="w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-xl font-bold">APPLY CHANGES</button>
-                    <div id="res-edit" class="mt-6 hidden"><img id="out-edit" class="rounded-xl mx-auto border border-gray-800"></div>
                 </div>
             </section>
 
             <section id="tab-video" class="tab-pane hidden max-w-2xl mx-auto">
                 <div class="glass-card p-6">
                     <h2 class="text-xl font-bold mb-1">Video Planner</h2>
-                    <p class="text-sm text-gray-400 mb-6">Scripts aur scenes plan karein.</p>
-                    <input type="text" id="prompt-vid" class="w-full p-4 rounded-xl mb-4 text-sm" placeholder="Video topic ya concept...">
-                    <button onclick="runVideo()" class="w-full bg-orange-600 hover:bg-orange-500 py-4 rounded-xl font-bold">CREATE STORYBOARD</button>
+                    <p class="text-sm text-gray-400 mb-6">Generate scripts and scene ideas.</p>
+                    <input type="text" id="prompt-vid" class="w-full p-4 rounded-xl mb-4 text-sm" placeholder="Short film about space travel...">
+                    <button onclick="runVideo()" class="w-full bg-orange-600 hover:bg-orange-500 py-4 rounded-xl font-bold">GENERATE PLAN</button>
                     <div id="res-video" class="mt-6 p-4 bg-gray-900 rounded-lg hidden">
                         <p id="txt-video" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"></p>
                     </div>
@@ -151,46 +131,54 @@
     </div>
 
     <!-- SETTINGS MODAL -->
-    <div id="setup-screen" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 hidden">
-        <div class="glass-card p-8 w-full max-w-md">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                <i class="fas fa-sliders text-blue-500"></i> AI Configuration
+    <div id="setup-screen" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6 hidden">
+        <div class="glass-card p-8 w-full max-w-md border-gray-700">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-key text-blue-500"></i> Setup AI
             </h2>
+            
+            <p class="text-xs text-gray-400 mb-6 bg-blue-900/20 p-3 rounded border border-blue-800/30 leading-relaxed">
+                If models are "Not Found", please ensure your <b>API Key</b> is correct and has access to Gemini 1.5. You can get a free key at <a href="https://aistudio.google.com/" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.
+            </p>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Gemini API Key</label>
-                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg text-sm" placeholder="Paste your API Key here">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">API Key</label>
+                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg text-sm" placeholder="Paste Key Here">
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Select or Type Model</label>
-                    <select id="model-select" class="w-full p-3 rounded-lg text-sm mb-2" onchange="handleModelChange(this.value)">
-                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
-                        <option value="custom">-- Custom Model Name --</option>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Model Selection</label>
+                    <select id="model-select" class="w-full p-3 rounded-lg text-sm">
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Most Reliable)</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro (Best Quality)</option>
+                        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp (Fastest)</option>
                     </select>
-                    <input type="text" id="custom-model-input" class="w-full p-3 rounded-lg text-sm hidden" placeholder="e.g. gemini-1.5-flash-8b">
                 </div>
             </div>
 
             <div class="mt-8 flex gap-3">
-                <button onclick="saveSetup()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-colors">Apply Changes</button>
-                <button onclick="toggleSetup()" class="px-6 bg-gray-800 hover:bg-gray-700 rounded-xl font-bold">Close</button>
+                <button onclick="saveSetup()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-colors">Save & Reload</button>
+                <button onclick="toggleSetup()" class="px-6 bg-gray-800 hover:bg-gray-700 rounded-xl font-bold">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- LOADER -->
-    <div id="loader-overlay" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+    <div id="loader-overlay" class="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center hidden">
         <div class="loader mb-4"></div>
-        <p id="load-msg" class="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] animate-pulse">Running AI Model...</p>
+        <p id="load-msg" class="text-[11px] font-bold text-blue-400 uppercase tracking-widest">Processing...</p>
+        <div id="api-error-display" class="max-w-xs mx-auto text-center hidden">
+             <div class="error-toast text-white mt-4">
+                <p id="api-error-msg"></p>
+                <button onclick="toggleSetup(); setLoader(false);" class="mt-3 text-xs font-bold underline">Check Settings</button>
+             </div>
+        </div>
     </div>
 
     <script>
-        const KEY_STORE = 'nk_pro_api_key';
-        const MODEL_STORE = 'nk_pro_model_ver';
+        const KEY_STORE = 'nk_api_key_v2';
+        const MODEL_STORE = 'nk_model_ver_v2';
         
         let state = { 
             apiKey: localStorage.getItem(KEY_STORE) || "",
@@ -200,52 +188,22 @@
         window.onload = () => {
             if(!state.apiKey) toggleSetup();
             document.getElementById('api-key-input').value = state.apiKey;
-            
-            // Sync select dropdown
-            const selector = document.getElementById('model-select');
-            const customInput = document.getElementById('custom-model-input');
-            
-            let found = false;
-            for(let opt of selector.options) {
-                if(opt.value === state.model) {
-                    selector.value = state.model;
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                selector.value = "custom";
-                customInput.value = state.model;
-                customInput.classList.remove('hidden');
-            }
-
+            document.getElementById('model-select').value = state.model;
             document.getElementById('status-model').innerText = `Model: ${state.model}`;
+            if(state.apiKey) document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]';
         };
 
-        function handleModelChange(val) {
-            const customInput = document.getElementById('custom-model-input');
-            if(val === 'custom') customInput.classList.remove('hidden');
-            else customInput.classList.add('hidden');
+        function toggleSetup() { 
+            document.getElementById('setup-screen').classList.toggle('hidden'); 
+            document.getElementById('api-error-display').classList.add('hidden');
         }
-
-        function toggleSetup() { document.getElementById('setup-screen').classList.toggle('hidden'); }
         
         function saveSetup() {
-            const keyVal = document.getElementById('api-key-input').value.trim();
-            const modSelect = document.getElementById('model-select').value;
-            const customMod = document.getElementById('custom-model-input').value.trim();
-            
-            const finalModel = (modSelect === 'custom') ? customMod : modSelect;
-
-            if(!keyVal) return alert("API Key jaroori hai!");
-            if(!finalModel) return alert("Model name sahi likhein!");
-            
-            localStorage.setItem(KEY_STORE, keyVal);
-            localStorage.setItem(MODEL_STORE, finalModel);
-            state.apiKey = keyVal;
-            state.model = finalModel;
-            
-            toggleSetup();
+            const k = document.getElementById('api-key-input').value.trim();
+            const m = document.getElementById('model-select').value;
+            if(!k) return alert("API Key is required");
+            localStorage.setItem(KEY_STORE, k);
+            localStorage.setItem(MODEL_STORE, m);
             location.reload();
         }
 
@@ -254,6 +212,104 @@
             document.getElementById(`tab-${id}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${id}`).classList.add('active');
+        }
+
+        function setLoader(show, msg) {
+            document.getElementById('loader-overlay').classList.toggle('hidden', !show);
+            if(msg) document.getElementById('load-msg').innerText = msg;
+            if(!show) document.getElementById('api-error-display').classList.add('hidden');
+        }
+
+        function showError(msg) {
+            const errBox = document.getElementById('api-error-display');
+            const errMsg = document.getElementById('api-error-msg');
+            errBox.classList.remove('hidden');
+            errMsg.innerText = msg;
+            document.querySelector('.loader').classList.add('hidden');
+            document.getElementById('load-msg').classList.add('hidden');
+        }
+
+        async function apiRequest(endpoint, payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${endpoint}?key=${state.apiKey}`;
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if(!res.ok) {
+                    let msg = data.error?.message || "Unknown error";
+                    if(msg.includes("not found")) msg = `The model "${state.model}" is not available in your region or key. Try switching to "gemini-1.5-flash" in Settings.`;
+                    if(msg.includes("API key not valid")) msg = "Your API Key is invalid. Please copy it again carefully.";
+                    throw new Error(msg);
+                }
+                return data;
+            } catch (err) {
+                showError(err.message);
+                throw err;
+            }
+        }
+
+        async function runVision() {
+            const file = document.getElementById('file-v').files[0];
+            if(!file) return alert("Select an image first");
+            setLoader(true, "AI Analyzing...");
+            try {
+                const b64 = await toBase64(file);
+                const data = await apiRequest(`${state.model}:generateContent`, {
+                    contents: [{ parts: [
+                        { text: "Describe this image in detail for an artist prompt." },
+                        { inlineData: { mimeType: file.type, data: b64 } }
+                    ]}]
+                });
+                const txt = data.candidates[0].content.parts[0].text;
+                document.getElementById('txt-v').innerText = txt;
+                document.getElementById('res-v').classList.remove('hidden');
+                setLoader(false);
+            } catch(e) { console.error(e); }
+        }
+
+        async function runArt() {
+            const p = document.getElementById('prompt-art').value;
+            if(!p) return alert("Enter a prompt");
+            setLoader(true, "Creating Art...");
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${state.apiKey}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ instances: { prompt: p }, parameters: { sampleCount: 1 } })
+                });
+                const data = await res.json();
+                if(data.predictions && data.predictions[0]) {
+                    document.getElementById('out-art').src = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                    document.getElementById('res-art').classList.remove('hidden');
+                    setLoader(false);
+                } else {
+                    throw new Error(data.error?.message || "Imagen model not accessible with this key.");
+                }
+            } catch(e) { showError(e.message); }
+        }
+
+        async function runVideo() {
+            const p = document.getElementById('prompt-vid').value;
+            if(!p) return alert("Enter a concept");
+            setLoader(true, "Planning Scenes...");
+            try {
+                const data = await apiRequest(`${state.model}:generateContent`, {
+                    contents: [{ parts: [{ text: `Generate a video storyboard script for: ${p}` }] }]
+                });
+                document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
+                document.getElementById('res-video').classList.remove('hidden');
+                setLoader(false);
+            } catch(e) { console.error(e); }
+        }
+
+        function toBase64(file) {
+            return new Promise((r) => {
+                const reader = new FileReader();
+                reader.onload = () => r(reader.result.split(',')[1]);
+                reader.readAsDataURL(file);
+            });
         }
 
         function handlePreview(input, imgId, txtId) {
@@ -268,133 +324,6 @@
                 };
                 reader.readAsDataURL(file);
             }
-        }
-
-        async function callGemini(payload) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${state.model}:generateContent?key=${state.apiKey}`;
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                
-                if(!res.ok) {
-                    // Agar model not found hai, toh hum 'gemini-1.5-flash' pe fallback try karenge
-                    if(data.error?.message?.toLowerCase().includes("not found")) {
-                        throw new Error(`Model '${state.model}' server par nahi mila. Settings mein jaake plain 'gemini-1.5-flash' type karein.`);
-                    }
-                    throw new Error(data.error?.message || "AI Connection Error");
-                }
-                return data;
-            } catch (err) {
-                throw err;
-            }
-        }
-
-        function setLoader(show, msg) {
-            document.getElementById('loader-overlay').classList.toggle('hidden', !show);
-            if(msg) document.getElementById('load-msg').innerText = msg;
-        }
-
-        async function runVision() {
-            const file = document.getElementById('file-v').files[0];
-            if(!file) return alert("Photo upload karein.");
-            setLoader(true, `Analyzing Image...`);
-            try {
-                const b64 = await toBase64(file);
-                const data = await callGemini({
-                    contents: [{ parts: [
-                        { text: "Analyze this image and provide a high-quality prompt for AI image generation." },
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}]
-                });
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(!text) throw new Error("AI response empty hai.");
-                document.getElementById('txt-v').innerText = text;
-                document.getElementById('res-v').classList.remove('hidden');
-            } catch(e) { alert(e.message); }
-            setLoader(false);
-        }
-
-        async function runArt() {
-            const p = document.getElementById('prompt-art').value;
-            if(!p) return alert("Prompt likhein!");
-            setLoader(true, "Generating Artwork...");
-            try {
-                // Fixed endpoint for Image Generation as it's separate from Text models
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`;
-                const res = await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify({ contents: [{parts:[{text:p}]}], generationConfig: { responseModalities:['IMAGE'] } })
-                });
-                const data = await res.json();
-                const b64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if(!b64) throw new Error("Image API fail ho gayi. API key check karein.");
-                document.getElementById('out-art').src = `data:image/png;base64,${b64}`;
-                document.getElementById('res-art').classList.remove('hidden');
-            } catch(e) { alert("Art Error: " + e.message); }
-            setLoader(false);
-        }
-
-        async function runEdit() {
-            const file = document.getElementById('file-e').files[0];
-            const p = document.getElementById('prompt-edit').value;
-            if(!file || !p) return alert("Image aur prompt dono chahiye!");
-            setLoader(true, "Processing Edit...");
-            try {
-                const b64 = await toBase64(file);
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${state.apiKey}`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        contents: [{ parts: [
-                            { text: p },
-                            { inlineData: { mimeType: file.type, data: b64 } }
-                        ]}],
-                        generationConfig: { responseModalities: ['IMAGE'] }
-                    })
-                });
-                const data = await res.json();
-                const outB64 = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-                if(!outB64) throw new Error("Edit apply nahi ho saka.");
-                document.getElementById('out-edit').src = `data:image/png;base64,${outB64}`;
-                document.getElementById('res-edit').classList.remove('hidden');
-            } catch(e) { alert(e.message); }
-            setLoader(false);
-        }
-
-        async function runVideo() {
-            const p = document.getElementById('prompt-vid').value;
-            if(!p) return alert("Topic likhein.");
-            setLoader(true, "Creating Storyboard...");
-            try {
-                const data = await callGemini({
-                    contents: [{ parts: [{ text: `Create a professional storyboard for a video about: ${p}.` }] }]
-                });
-                document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
-                document.getElementById('res-video').classList.remove('hidden');
-            } catch(e) { alert(e.message); }
-            setLoader(false);
-        }
-
-        function toBase64(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("Copied!");
         }
     </script>
 </body>
