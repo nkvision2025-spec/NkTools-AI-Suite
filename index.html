@@ -89,35 +89,32 @@
         <div class="glass-card w-full max-w-4xl p-10 shadow-2xl">
             <div id="content-header">
                 <h2 id="main-title" class="text-3xl font-bold text-blue-400 mb-2">Cinematic Motion Engine</h2>
-                <p id="main-desc" class="text-gray-400 mb-10 italic">Convert any photo to motion parameters. (Stable Version 2.0)</p>
+                <p id="main-desc" class="text-gray-400 mb-10 italic">Convert any photo to motion parameters. (Stable Version 3.0)</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                <!-- Input Box -->
                 <div class="flex flex-col gap-3">
                     <span id="label-left" class="text-xs font-bold text-blue-300 uppercase tracking-widest">Input Photo</span>
                     <div id="drop-zone" class="input-box aspect-video flex flex-col items-center justify-center cursor-pointer relative overflow-hidden border-dashed border-2 border-gray-700 hover:border-blue-500">
                         <input type="file" id="file-input" class="hidden" accept="image/*">
                         <div id="upload-placeholder" class="text-center p-4">
                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3 text-gray-500" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            <p id="upload-text" class="text-sm text-gray-500">Click to upload photo</p>
+                            <p id="upload-text" class="text-sm text-gray-500">Upload Base Image</p>
                         </div>
                         <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain bg-black/40">
                     </div>
                 </div>
 
-                <!-- Right Box -->
                 <div class="flex flex-col gap-3">
                     <span id="label-right" class="text-xs font-bold text-blue-300 uppercase tracking-widest">Description</span>
                     <div class="input-box aspect-video p-4">
                         <textarea id="text-input" 
                             class="w-full h-full bg-transparent border-none outline-none resize-none text-gray-200 placeholder-gray-600 text-sm"
-                            placeholder="Kuch likhein..."></textarea>
+                            placeholder="E.g. Smooth hair movement, dramatic zoom in..."></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- Result Box -->
             <div id="result-container" class="hidden mb-10">
                 <span class="text-xs font-bold text-green-400 uppercase tracking-widest mb-3 block">AI Output</span>
                 <div id="result-content" class="input-box p-6 min-h-[100px] border-green-900/40 bg-green-900/5">
@@ -128,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Action Button -->
             <button id="action-btn" class="btn-primary w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3">
                 <span id="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
                 <span id="btn-text">GENERATE MOTION</span>
@@ -142,7 +138,7 @@
     <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="bg-[#1a2235] w-full max-w-md rounded-2xl p-6 border border-gray-700 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">AI Studio Settings</h3>
+                <h3 class="text-xl font-bold text-white">API Configuration</h3>
                 <button onclick="toggleSettings()" class="text-gray-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -151,21 +147,21 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm text-gray-400 mb-1">Gemini API Key</label>
-                    <input type="password" id="api-key-input" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500" placeholder="Paste your key here">
+                    <input type="password" id="api-key-input" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500 text-white" placeholder="Paste your API key">
                 </div>
                 
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">Stable Model Selection</label>
-                    <select id="model-select" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500">
-                        <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest (Recommended)</option>
-                        <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest (High Quality)</option>
-                        <option value="gemini-1.5-flash">gemini-1.5-flash (Legacy)</option>
-                        <option value="gemini-1.5-pro">gemini-1.5-pro (Legacy)</option>
+                    <label class="block text-sm text-gray-400 mb-1">AI Engine Model</label>
+                    <select id="model-select" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500 text-white">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fastest)</option>
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Best Quality)</option>
+                        <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B (Lightweight)</option>
                     </select>
+                    <p class="text-[10px] text-gray-500 mt-1">*If 'Not Found' error occurs, system will auto-fix with latest versions.</p>
                 </div>
 
-                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold mt-4 transition">
-                    Save Configuration
+                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold mt-4 transition text-white">
+                    Save and Apply Changes
                 </button>
             </div>
         </div>
@@ -174,10 +170,10 @@
     <script>
         let currentTab = 'av';
         const config = {
-            av: { title: "Cinematic Motion Engine", desc: "Photo ko cinematic motion parameters mein badlein.", labelL: "Input Photo", labelR: "Motion Style", btn: "GENERATE MOTION", placeholder: "E.g. Slow pan right, waves moving gently..." },
-            itp: { title: "Image to Prompt", desc: "AI image generator ke liye detailed prompt banayein.", labelL: "Upload Photo", labelR: "Focus Context", btn: "GENERATE PROMPT", placeholder: "Describe style or theme..." },
-            pti: { title: "Prompt to Image", desc: "Text se AI image banayein (Imagen support required).", labelL: "Optional Ref", labelR: "Image Prompt", btn: "GENERATE IMAGE", placeholder: "A beautiful mountain landscape at sunset..." },
-            pc: { title: "Pro Changer", desc: "AI se image ka look transform karein.", labelL: "Base Photo", labelR: "Transformation", btn: "TRANSFORM", placeholder: "Change to realistic 3D render..." }
+            av: { title: "Cinematic Motion Engine", desc: "Photo to cinematic motion parameters.", labelL: "Input Photo", labelR: "Motion Style", btn: "GENERATE MOTION", placeholder: "E.g. Smooth camera zoom, clouds moving..." },
+            itp: { title: "Image to Prompt", desc: "Extract detailed prompts from your images.", labelL: "Upload Image", labelR: "Specific Focus", btn: "GENERATE PROMPT", placeholder: "Context or style preference..." },
+            pti: { title: "Prompt to Image", desc: "Generate AI images from text description.", labelL: "Reference (Opt)", labelR: "Visual Prompt", btn: "GENERATE IMAGE", placeholder: "A majestic lion in cyberpunk style..." },
+            pc: { title: "Pro Changer", desc: "Advanced visual transformation tool.", labelL: "Source Photo", labelR: "Target Transformation", btn: "TRANSFORM", placeholder: "Transform to watercolor painting style..." }
         };
 
         const elements = {
@@ -203,7 +199,6 @@
             currentTab = tab;
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('nav-active'));
             document.getElementById(`tab-${tab}`).classList.add('nav-active');
-            
             elements.mainTitle.innerText = config[tab].title;
             elements.mainDesc.innerText = config[tab].desc;
             elements.labelL.innerText = config[tab].labelL;
@@ -219,9 +214,9 @@
         }
 
         function saveSettings() {
-            localStorage.setItem('nk_api_key', document.getElementById('api-key-input').value);
+            localStorage.setItem('nk_api_key', document.getElementById('api-key-input').value.trim());
             localStorage.setItem('nk_model', document.getElementById('model-select').value);
-            showStatus('Settings Applied!', 'text-green-400');
+            showStatus('Settings Updated!', 'text-green-400');
             setTimeout(toggleSettings, 800);
         }
 
@@ -245,37 +240,42 @@
             }
         };
 
-        // Smart Dual-Endpoint Caller
-        async function fetchAI(endpoint, model, apiKey, payload) {
-            const url = `https://generativelanguage.googleapis.com/${endpoint}/models/${model}:generateContent?key=${apiKey}`;
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            return res;
-        }
-
-        async function callGeminiSafe(payload) {
+        // Universal AI Request Handler with Auto-Correction
+        async function smartRequest(payload) {
             const apiKey = localStorage.getItem('nk_api_key');
-            const model = localStorage.getItem('nk_model') || 'gemini-1.5-flash-latest';
+            let baseModel = localStorage.getItem('nk_model') || 'gemini-1.5-flash';
             
-            if (!apiKey) throw new Error("API Key nahi mili! Settings check karein.");
+            if (!apiKey) throw new Error("API Key is missing. Check Settings.");
 
-            // Attempt 1: v1
-            let res = await fetchAI('v1', model, apiKey, payload);
-            
-            // Attempt 2: v1beta (if v1 fails)
-            if (!res.ok) {
-                console.log("v1 failed, trying v1beta...");
-                res = await fetchAI('v1beta', model, apiKey, payload);
-            }
+            // List of potential endpoints to try in order
+            const attempts = [
+                { version: 'v1beta', model: baseModel },
+                { version: 'v1', model: baseModel },
+                { version: 'v1beta', model: `${baseModel}-latest` },
+                { version: 'v1', model: `${baseModel}-latest` }
+            ];
 
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.error?.message || "AI response error.");
+            let lastError = "";
+
+            for (let attempt of attempts) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/${attempt.version}/models/${attempt.model}:generateContent?key=${apiKey}`;
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                    if (res.ok) return data;
+                    
+                    lastError = data.error?.message || "Unknown error";
+                    console.log(`Failed ${attempt.version}/${attempt.model}: ${lastError}`);
+                } catch (e) {
+                    lastError = e.message;
+                }
             }
-            return data;
+            throw new Error(`Model Selection Error: ${lastError}. Try switching from Flash to Pro in Settings.`);
         }
 
         elements.actionBtn.onclick = async () => {
@@ -284,37 +284,37 @@
             const base64 = hasImage ? elements.imagePreview.src.split(',')[1] : null;
 
             elements.actionBtn.disabled = true;
-            elements.actionBtn.innerHTML = `<div class="loading-spinner"></div> Processing...`;
+            elements.actionBtn.innerHTML = `<div class="loading-spinner"></div> Initializing AI...`;
             elements.resultContainer.classList.add('hidden');
 
             try {
-                showStatus('AI is processing (Stable Link)...', 'text-blue-400');
+                showStatus('Connecting to AI Engine...', 'text-blue-400');
                 
-                let sysPrompt = "";
+                let systemInstruction = "";
                 switch(currentTab) {
-                    case 'itp': sysPrompt = "Act as an expert prompt engineer. Analyze this image and provide a professional prompt."; break;
-                    case 'av': sysPrompt = "Analyze this image and provide cinematic video motion parameters based on: " + prompt; break;
-                    case 'pc': sysPrompt = "Describe the visual transformation for this image: " + prompt; break;
-                    case 'pti': sysPrompt = "Refine this text to create a high-quality image prompt: " + prompt; break;
+                    case 'itp': systemInstruction = "Identify and describe every visual detail. Provide a 100-word prompt for AI image generation."; break;
+                    case 'av': systemInstruction = "Provide cinematic motion parameters (direction, speed, focus) for this photo: " + prompt; break;
+                    case 'pc': systemInstruction = "Transform details: " + prompt; break;
+                    case 'pti': systemInstruction = "Refine this text into a masterpiece prompt: " + prompt; break;
                 }
 
                 const contents = [{
                     parts: [
-                        { text: sysPrompt },
+                        { text: systemInstruction },
                         ...(hasImage ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])
                     ]
                 }];
 
-                const data = await callGeminiSafe({ contents });
-                const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+                const data = await smartRequest({ contents });
+                const finalResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
                 
-                elements.resultText.innerText = result;
+                elements.resultText.innerText = finalResult;
                 elements.resultContainer.classList.remove('hidden');
-                showStatus('Success!', 'text-green-400');
+                showStatus('Processing Complete!', 'text-green-400');
 
             } catch (err) {
-                console.error(err);
-                showStatus(`Error: ${err.message}`, 'text-red-400');
+                console.error("Critical Error:", err);
+                showStatus(err.message, 'text-red-400');
             } finally {
                 elements.actionBtn.disabled = false;
                 elements.actionBtn.innerHTML = `<span id="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span> <span>${config[currentTab].btn}</span>`;
@@ -322,10 +322,10 @@
         };
 
         window.onload = () => {
-            const k = localStorage.getItem('nk_api_key');
-            const m = localStorage.getItem('nk_model');
-            if (k) document.getElementById('api-key-input').value = k;
-            if (m) document.getElementById('model-select').value = m;
+            const key = localStorage.getItem('nk_api_key');
+            const model = localStorage.getItem('nk_model');
+            if (key) document.getElementById('api-key-input').value = key;
+            if (model) document.getElementById('model-select').value = model;
             switchTab('av');
         };
     </script>
