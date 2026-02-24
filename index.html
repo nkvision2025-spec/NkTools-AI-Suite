@@ -1,330 +1,333 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NkTools - Ultimate AI Suite</title>
+    <title>NkTools Pro - Multi-AI Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
-        body { font-family: 'Outfit', sans-serif; background: #010409; color: #e6edf3; margin: 0; padding: 0; }
-        
-        .glass-card { background: rgba(13, 17, 23, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(48, 54, 61, 1); border-radius: 1rem; }
-        
-        .nav-item { cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 0.75rem; display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #8b949e; border: 1px solid transparent; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { background: rgba(35, 134, 54, 0.15); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.3); }
-        .nav-item.active i { color: #3fb950; }
-
-        .loader { border: 3px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .hidden { display: none !important; }
-        .drop-zone { border: 2px dashed #30363d; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.75rem; cursor: pointer; transition: 0.2s; }
-        .drop-zone:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
-        img.preview { max-width: 100%; max-height: 200px; border-radius: 0.5rem; margin-top: 10px; }
-        
-        input, select, textarea { background: #0d1117 !important; border: 1px solid #30363d !important; color: white !important; outline: none; transition: 0.2s; }
-        input:focus { border-color: #3b82f6 !important; }
-
-        .error-toast { background: #440505; border-left: 4px solid #f85149; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; }
+        body {
+            background-color: #0d121f;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(23, 30, 46, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+        .input-box {
+            background: #1a2235;
+            border: 1px solid #2d3748;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .input-box:hover {
+            border-color: #3b82f6;
+        }
+        .btn-primary {
+            background: #2563eb;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        #settings-modal {
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nav-link { cursor: pointer; transition: color 0.2s; position: relative; }
+        .nav-active { color: #60a5fa; }
+        .nav-active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #60a5fa;
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <header class="border-b border-gray-800 bg-[#0d1117] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">NkTools <span class="text-blue-500 text-xs px-1.5 py-0.5 border border-blue-500 rounded ml-1">PRO</span></h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Ready for use</p>
-                </div>
+    <!-- Header -->
+    <header class="px-6 py-4 flex items-center justify-between border-b border-gray-800">
+        <div class="flex items-center gap-2">
+            <div class="bg-yellow-400 text-black p-1 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </div>
-            <button onclick="toggleSetup()" class="w-10 h-10 rounded-full hover:bg-gray-800 flex items-center justify-center transition-colors">
-                <i class="fas fa-cog text-gray-400"></i>
+            <h1 class="text-xl font-bold tracking-tight">NkTools <span class="text-blue-500 italic">Pro</span></h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+            <span onclick="switchTab('itp')" id="tab-itp" class="nav-link">Image to Prompt</span>
+            <span onclick="switchTab('pti')" id="tab-pti" class="nav-link">Prompt to Image</span>
+            <span onclick="switchTab('pc')" id="tab-pc" class="nav-link">Pro Changer</span>
+            <span onclick="switchTab('av')" id="tab-av" class="nav-link nav-active">AI Video</span>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSettings()" class="p-2 hover:bg-gray-800 rounded-full transition text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
         </div>
     </header>
 
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
-        
-        <aside class="w-full md:w-64 p-4 border-r border-gray-800 bg-[#0d1117]">
-            <div class="flex flex-col gap-2">
-                <div onclick="switchTab('vision')" id="btn-vision" class="nav-item active">
-                    <i class="fas fa-eye w-5"></i>
-                    <span class="font-semibold text-sm">Vision AI</span>
-                </div>
-                <div onclick="switchTab('art')" id="btn-art" class="nav-item">
-                    <i class="fas fa-paint-brush w-5"></i>
-                    <span class="font-semibold text-sm">Art Generator</span>
-                </div>
-                <div onclick="switchTab('video')" id="btn-video" class="nav-item">
-                    <i class="fas fa-film w-5"></i>
-                    <span class="font-semibold text-sm">Video Planner</span>
-                </div>
-                
-                <hr class="my-4 border-gray-800">
-                
-                <div class="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-[10px] font-bold text-gray-500 uppercase">Config</p>
-                        <span id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="glass-card w-full max-w-4xl p-10 shadow-2xl">
+            <div id="content-header">
+                <h2 id="main-title" class="text-3xl font-bold text-blue-400 mb-2">Cinematic Motion Engine</h2>
+                <p id="main-desc" class="text-gray-400 mb-10 italic">Convert any photo to motion parameters. (Stable Version 2.0)</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <!-- Input Box -->
+                <div class="flex flex-col gap-3">
+                    <span id="label-left" class="text-xs font-bold text-blue-300 uppercase tracking-widest">Input Photo</span>
+                    <div id="drop-zone" class="input-box aspect-video flex flex-col items-center justify-center cursor-pointer relative overflow-hidden border-dashed border-2 border-gray-700 hover:border-blue-500">
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                        <div id="upload-placeholder" class="text-center p-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3 text-gray-500" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <p id="upload-text" class="text-sm text-gray-500">Click to upload photo</p>
+                        </div>
+                        <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-contain bg-black/40">
                     </div>
-                    <p id="status-model" class="text-[11px] text-blue-400 font-mono truncate">Model: Loading...</p>
-                    <button onclick="toggleSetup()" class="mt-3 w-full py-1.5 text-[10px] font-bold bg-gray-800 hover:bg-gray-700 rounded uppercase tracking-wider transition-colors">Settings</button>
+                </div>
+
+                <!-- Right Box -->
+                <div class="flex flex-col gap-3">
+                    <span id="label-right" class="text-xs font-bold text-blue-300 uppercase tracking-widest">Description</span>
+                    <div class="input-box aspect-video p-4">
+                        <textarea id="text-input" 
+                            class="w-full h-full bg-transparent border-none outline-none resize-none text-gray-200 placeholder-gray-600 text-sm"
+                            placeholder="Kuch likhein..."></textarea>
+                    </div>
                 </div>
             </div>
-        </aside>
 
-        <main class="flex-1 p-4 md:p-8 bg-[#010409]">
+            <!-- Result Box -->
+            <div id="result-container" class="hidden mb-10">
+                <span class="text-xs font-bold text-green-400 uppercase tracking-widest mb-3 block">AI Output</span>
+                <div id="result-content" class="input-box p-6 min-h-[100px] border-green-900/40 bg-green-900/5">
+                    <p id="result-text" class="text-gray-200 text-sm whitespace-pre-wrap leading-relaxed"></p>
+                    <div id="image-result-wrapper" class="hidden mt-4">
+                        <img id="result-image" class="w-full h-auto rounded-lg shadow-2xl border border-gray-700 mx-auto max-h-[500px] object-contain">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="action-btn" class="btn-primary w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3">
+                <span id="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+                <span id="btn-text">GENERATE MOTION</span>
+            </button>
             
-            <section id="tab-vision" class="tab-pane max-w-2xl mx-auto">
-                <div class="glass-card p-6 shadow-xl">
-                    <h2 class="text-xl font-bold mb-1">Vision AI</h2>
-                    <p class="text-sm text-gray-400 mb-6">Analyze images with Google Gemini.</p>
-                    
-                    <div class="drop-zone" onclick="document.getElementById('file-v').click()">
-                        <input type="file" id="file-v" class="hidden" accept="image/*" onchange="handlePreview(this, 'prev-v', 'zone-v-txt')">
-                        <div id="zone-v-txt" class="text-center">
-                            <i class="fas fa-cloud-arrow-up text-blue-500 text-3xl mb-2"></i>
-                            <p class="text-xs text-gray-500 font-bold uppercase">Click to Upload</p>
-                        </div>
-                        <img id="prev-v" class="preview hidden">
-                    </div>
-                    
-                    <button onclick="runVision()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold transition-all shadow-lg active:scale-[0.98]">RUN ANALYSIS</button>
-                    
-                    <div id="res-v" class="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-800 hidden">
-                        <p id="txt-v" class="text-sm text-gray-300 italic leading-relaxed"></p>
-                    </div>
-                </div>
-            </section>
+            <div id="status-message" class="mt-4 text-center text-sm font-medium hidden"></div>
+        </div>
+    </main>
 
-            <section id="tab-art" class="tab-pane hidden max-w-2xl mx-auto">
-                <div class="glass-card p-6">
-                    <h2 class="text-xl font-bold mb-1">Art Generator</h2>
-                    <p class="text-sm text-gray-400 mb-6">Create images from text prompts.</p>
-                    <textarea id="prompt-art" class="w-full p-4 rounded-xl text-sm mb-4 min-h-[120px]" placeholder="A futuristic city in the style of cyberpunk..."></textarea>
-                    <button onclick="runArt()" class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-bold">GENERATE ART</button>
-                    <div id="res-art" class="mt-8 text-center hidden">
-                        <img id="out-art" class="rounded-xl shadow-2xl mx-auto border border-gray-800 max-w-full">
-                    </div>
-                </div>
-            </section>
-
-            <section id="tab-video" class="tab-pane hidden max-w-2xl mx-auto">
-                <div class="glass-card p-6">
-                    <h2 class="text-xl font-bold mb-1">Video Planner</h2>
-                    <p class="text-sm text-gray-400 mb-6">Generate scripts and scene ideas.</p>
-                    <input type="text" id="prompt-vid" class="w-full p-4 rounded-xl mb-4 text-sm" placeholder="Short film about space travel...">
-                    <button onclick="runVideo()" class="w-full bg-orange-600 hover:bg-orange-500 py-4 rounded-xl font-bold">GENERATE PLAN</button>
-                    <div id="res-video" class="mt-6 p-4 bg-gray-900 rounded-lg hidden">
-                        <p id="txt-video" class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"></p>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- SETTINGS MODAL -->
-    <div id="setup-screen" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6 hidden">
-        <div class="glass-card p-8 w-full max-w-md border-gray-700">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <i class="fas fa-key text-blue-500"></i> Setup AI
-            </h2>
-            
-            <p class="text-xs text-gray-400 mb-6 bg-blue-900/20 p-3 rounded border border-blue-800/30 leading-relaxed">
-                If models are "Not Found", please ensure your <b>API Key</b> is correct and has access to Gemini 1.5. You can get a free key at <a href="https://aistudio.google.com/" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.
-            </p>
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#1a2235] w-full max-w-md rounded-2xl p-6 border border-gray-700 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">AI Studio Settings</h3>
+                <button onclick="toggleSettings()" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">API Key</label>
-                    <input type="password" id="api-key-input" class="w-full p-3 rounded-lg text-sm" placeholder="Paste Key Here">
+                    <label class="block text-sm text-gray-400 mb-1">Gemini API Key</label>
+                    <input type="password" id="api-key-input" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500" placeholder="Paste your key here">
                 </div>
-
+                
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Model Selection</label>
-                    <select id="model-select" class="w-full p-3 rounded-lg text-sm">
-                        <option value="gemini-1.5-flash">gemini-1.5-flash (Most Reliable)</option>
-                        <option value="gemini-1.5-pro">gemini-1.5-pro (Best Quality)</option>
-                        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp (Fastest)</option>
+                    <label class="block text-sm text-gray-400 mb-1">Stable Model Selection</label>
+                    <select id="model-select" class="w-full bg-[#0d121f] border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500">
+                        <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest (Recommended)</option>
+                        <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest (High Quality)</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Legacy)</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro (Legacy)</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="mt-8 flex gap-3">
-                <button onclick="saveSetup()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-colors">Save & Reload</button>
-                <button onclick="toggleSetup()" class="px-6 bg-gray-800 hover:bg-gray-700 rounded-xl font-bold">Cancel</button>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold mt-4 transition">
+                    Save Configuration
+                </button>
             </div>
-        </div>
-    </div>
-
-    <!-- LOADER -->
-    <div id="loader-overlay" class="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center hidden">
-        <div class="loader mb-4"></div>
-        <p id="load-msg" class="text-[11px] font-bold text-blue-400 uppercase tracking-widest">Processing...</p>
-        <div id="api-error-display" class="max-w-xs mx-auto text-center hidden">
-             <div class="error-toast text-white mt-4">
-                <p id="api-error-msg"></p>
-                <button onclick="toggleSetup(); setLoader(false);" class="mt-3 text-xs font-bold underline">Check Settings</button>
-             </div>
         </div>
     </div>
 
     <script>
-        const KEY_STORE = 'nk_api_key_v2';
-        const MODEL_STORE = 'nk_model_ver_v2';
-        
-        let state = { 
-            apiKey: localStorage.getItem(KEY_STORE) || "",
-            model: localStorage.getItem(MODEL_STORE) || "gemini-1.5-flash"
+        let currentTab = 'av';
+        const config = {
+            av: { title: "Cinematic Motion Engine", desc: "Photo ko cinematic motion parameters mein badlein.", labelL: "Input Photo", labelR: "Motion Style", btn: "GENERATE MOTION", placeholder: "E.g. Slow pan right, waves moving gently..." },
+            itp: { title: "Image to Prompt", desc: "AI image generator ke liye detailed prompt banayein.", labelL: "Upload Photo", labelR: "Focus Context", btn: "GENERATE PROMPT", placeholder: "Describe style or theme..." },
+            pti: { title: "Prompt to Image", desc: "Text se AI image banayein (Imagen support required).", labelL: "Optional Ref", labelR: "Image Prompt", btn: "GENERATE IMAGE", placeholder: "A beautiful mountain landscape at sunset..." },
+            pc: { title: "Pro Changer", desc: "AI se image ka look transform karein.", labelL: "Base Photo", labelR: "Transformation", btn: "TRANSFORM", placeholder: "Change to realistic 3D render..." }
         };
 
-        window.onload = () => {
-            if(!state.apiKey) toggleSetup();
-            document.getElementById('api-key-input').value = state.apiKey;
-            document.getElementById('model-select').value = state.model;
-            document.getElementById('status-model').innerText = `Model: ${state.model}`;
-            if(state.apiKey) document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]';
+        const elements = {
+            mainTitle: document.getElementById('main-title'),
+            mainDesc: document.getElementById('main-desc'),
+            labelL: document.getElementById('label-left'),
+            labelR: document.getElementById('label-right'),
+            btnText: document.getElementById('btn-text'),
+            textInput: document.getElementById('text-input'),
+            dropZone: document.getElementById('drop-zone'),
+            fileInput: document.getElementById('file-input'),
+            imagePreview: document.getElementById('image-preview'),
+            placeholder: document.getElementById('upload-placeholder'),
+            actionBtn: document.getElementById('action-btn'),
+            status: document.getElementById('status-message'),
+            resultContainer: document.getElementById('result-container'),
+            resultText: document.getElementById('result-text'),
+            resultImage: document.getElementById('result-image'),
+            imageResultWrapper: document.getElementById('image-result-wrapper')
         };
 
-        function toggleSetup() { 
-            document.getElementById('setup-screen').classList.toggle('hidden'); 
-            document.getElementById('api-error-display').classList.add('hidden');
-        }
-        
-        function saveSetup() {
-            const k = document.getElementById('api-key-input').value.trim();
-            const m = document.getElementById('model-select').value;
-            if(!k) return alert("API Key is required");
-            localStorage.setItem(KEY_STORE, k);
-            localStorage.setItem(MODEL_STORE, m);
-            location.reload();
-        }
-
-        function switchTab(id) {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-            document.getElementById(`tab-${id}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${id}`).classList.add('active');
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('nav-active'));
+            document.getElementById(`tab-${tab}`).classList.add('nav-active');
+            
+            elements.mainTitle.innerText = config[tab].title;
+            elements.mainDesc.innerText = config[tab].desc;
+            elements.labelL.innerText = config[tab].labelL;
+            elements.labelR.innerText = config[tab].labelR;
+            elements.btnText.innerText = config[tab].btn;
+            elements.textInput.placeholder = config[tab].placeholder;
+            elements.resultContainer.classList.add('hidden');
         }
 
-        function setLoader(show, msg) {
-            document.getElementById('loader-overlay').classList.toggle('hidden', !show);
-            if(msg) document.getElementById('load-msg').innerText = msg;
-            if(!show) document.getElementById('api-error-display').classList.add('hidden');
+        function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        function showError(msg) {
-            const errBox = document.getElementById('api-error-display');
-            const errMsg = document.getElementById('api-error-msg');
-            errBox.classList.remove('hidden');
-            errMsg.innerText = msg;
-            document.querySelector('.loader').classList.add('hidden');
-            document.getElementById('load-msg').classList.add('hidden');
+        function saveSettings() {
+            localStorage.setItem('nk_api_key', document.getElementById('api-key-input').value);
+            localStorage.setItem('nk_model', document.getElementById('model-select').value);
+            showStatus('Settings Applied!', 'text-green-400');
+            setTimeout(toggleSettings, 800);
         }
 
-        async function apiRequest(endpoint, payload) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${endpoint}?key=${state.apiKey}`;
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if(!res.ok) {
-                    let msg = data.error?.message || "Unknown error";
-                    if(msg.includes("not found")) msg = `The model "${state.model}" is not available in your region or key. Try switching to "gemini-1.5-flash" in Settings.`;
-                    if(msg.includes("API key not valid")) msg = "Your API Key is invalid. Please copy it again carefully.";
-                    throw new Error(msg);
-                }
-                return data;
-            } catch (err) {
-                showError(err.message);
-                throw err;
-            }
+        function showStatus(text, color) {
+            elements.status.innerText = text;
+            elements.status.className = `mt-4 text-center text-sm font-medium ${color}`;
+            elements.status.classList.remove('hidden');
         }
 
-        async function runVision() {
-            const file = document.getElementById('file-v').files[0];
-            if(!file) return alert("Select an image first");
-            setLoader(true, "AI Analyzing...");
-            try {
-                const b64 = await toBase64(file);
-                const data = await apiRequest(`${state.model}:generateContent`, {
-                    contents: [{ parts: [
-                        { text: "Describe this image in detail for an artist prompt." },
-                        { inlineData: { mimeType: file.type, data: b64 } }
-                    ]}]
-                });
-                const txt = data.candidates[0].content.parts[0].text;
-                document.getElementById('txt-v').innerText = txt;
-                document.getElementById('res-v').classList.remove('hidden');
-                setLoader(false);
-            } catch(e) { console.error(e); }
-        }
-
-        async function runArt() {
-            const p = document.getElementById('prompt-art').value;
-            if(!p) return alert("Enter a prompt");
-            setLoader(true, "Creating Art...");
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${state.apiKey}`, {
-                    method: 'POST',
-                    body: JSON.stringify({ instances: { prompt: p }, parameters: { sampleCount: 1 } })
-                });
-                const data = await res.json();
-                if(data.predictions && data.predictions[0]) {
-                    document.getElementById('out-art').src = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
-                    document.getElementById('res-art').classList.remove('hidden');
-                    setLoader(false);
-                } else {
-                    throw new Error(data.error?.message || "Imagen model not accessible with this key.");
-                }
-            } catch(e) { showError(e.message); }
-        }
-
-        async function runVideo() {
-            const p = document.getElementById('prompt-vid').value;
-            if(!p) return alert("Enter a concept");
-            setLoader(true, "Planning Scenes...");
-            try {
-                const data = await apiRequest(`${state.model}:generateContent`, {
-                    contents: [{ parts: [{ text: `Generate a video storyboard script for: ${p}` }] }]
-                });
-                document.getElementById('txt-video').innerText = data.candidates[0].content.parts[0].text;
-                document.getElementById('res-video').classList.remove('hidden');
-                setLoader(false);
-            } catch(e) { console.error(e); }
-        }
-
-        function toBase64(file) {
-            return new Promise((r) => {
+        elements.dropZone.onclick = () => elements.fileInput.click();
+        elements.fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
                 const reader = new FileReader();
-                reader.onload = () => r(reader.result.split(',')[1]);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function handlePreview(input, imgId, txtId) {
-            const file = input.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const img = document.getElementById(imgId);
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById(txtId).classList.add('hidden');
+                reader.onload = (re) => {
+                    elements.imagePreview.src = re.target.result;
+                    elements.imagePreview.classList.remove('hidden');
+                    elements.placeholder.classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
+        };
+
+        // Smart Dual-Endpoint Caller
+        async function fetchAI(endpoint, model, apiKey, payload) {
+            const url = `https://generativelanguage.googleapis.com/${endpoint}/models/${model}:generateContent?key=${apiKey}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return res;
         }
+
+        async function callGeminiSafe(payload) {
+            const apiKey = localStorage.getItem('nk_api_key');
+            const model = localStorage.getItem('nk_model') || 'gemini-1.5-flash-latest';
+            
+            if (!apiKey) throw new Error("API Key nahi mili! Settings check karein.");
+
+            // Attempt 1: v1
+            let res = await fetchAI('v1', model, apiKey, payload);
+            
+            // Attempt 2: v1beta (if v1 fails)
+            if (!res.ok) {
+                console.log("v1 failed, trying v1beta...");
+                res = await fetchAI('v1beta', model, apiKey, payload);
+            }
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error?.message || "AI response error.");
+            }
+            return data;
+        }
+
+        elements.actionBtn.onclick = async () => {
+            const prompt = elements.textInput.value;
+            const hasImage = !elements.imagePreview.classList.contains('hidden');
+            const base64 = hasImage ? elements.imagePreview.src.split(',')[1] : null;
+
+            elements.actionBtn.disabled = true;
+            elements.actionBtn.innerHTML = `<div class="loading-spinner"></div> Processing...`;
+            elements.resultContainer.classList.add('hidden');
+
+            try {
+                showStatus('AI is processing (Stable Link)...', 'text-blue-400');
+                
+                let sysPrompt = "";
+                switch(currentTab) {
+                    case 'itp': sysPrompt = "Act as an expert prompt engineer. Analyze this image and provide a professional prompt."; break;
+                    case 'av': sysPrompt = "Analyze this image and provide cinematic video motion parameters based on: " + prompt; break;
+                    case 'pc': sysPrompt = "Describe the visual transformation for this image: " + prompt; break;
+                    case 'pti': sysPrompt = "Refine this text to create a high-quality image prompt: " + prompt; break;
+                }
+
+                const contents = [{
+                    parts: [
+                        { text: sysPrompt },
+                        ...(hasImage ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])
+                    ]
+                }];
+
+                const data = await callGeminiSafe({ contents });
+                const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+                
+                elements.resultText.innerText = result;
+                elements.resultContainer.classList.remove('hidden');
+                showStatus('Success!', 'text-green-400');
+
+            } catch (err) {
+                console.error(err);
+                showStatus(`Error: ${err.message}`, 'text-red-400');
+            } finally {
+                elements.actionBtn.disabled = false;
+                elements.actionBtn.innerHTML = `<span id="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span> <span>${config[currentTab].btn}</span>`;
+            }
+        };
+
+        window.onload = () => {
+            const k = localStorage.getItem('nk_api_key');
+            const m = localStorage.getItem('nk_model');
+            if (k) document.getElementById('api-key-input').value = k;
+            if (m) document.getElementById('model-select').value = m;
+            switchTab('av');
+        };
     </script>
 </body>
 </html>
