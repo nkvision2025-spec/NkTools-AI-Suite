@@ -3,185 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NkTools Pro - Repair Engine</title>
+    <title>NkTools Pro - Smart Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; }
-        .accent-border { border-left: 4px solid #238636; }
-        .input-dark { background: #0d1117; border: 1px solid #30363d; color: white; padding: 12px; border-radius: 8px; width: 100%; outline: none; }
-        .input-dark:focus { border-color: #58a6ff; }
-        .btn-green { background-color: #238636; color: white; font-weight: 600; transition: 0.2s; }
-        .btn-green:hover { background-color: #2ea043; }
-        .btn-blue { background-color: #1f6feb; color: white; font-weight: 600; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        .glass-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; transition: all 0.3s ease; }
+        .glass-card:hover { border-color: #58a6ff; }
+        .input-dark { background: #0d1117; border: 1px solid #30363d; color: white; padding: 14px; border-radius: 10px; width: 100%; outline: none; }
+        .btn-primary { background-color: #1f6feb; color: white; font-weight: 700; border-radius: 10px; transition: 0.3s; }
+        .btn-primary:hover { background-color: #388bfd; transform: translateY(-1px); }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #58a6ff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body class="p-4 md:p-10 min-h-screen flex flex-col items-center">
 
-    <div class="w-full max-w-4xl space-y-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold flex items-center gap-2">
-                <span class="text-blue-500">NK</span> Tools <span class="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded">REPAIR MODE</span>
-            </h1>
-            <button onclick="document.getElementById('setup-box').classList.toggle('hidden')" class="text-sm text-gray-400 underline">Key Settings</button>
-        </div>
-
-        <!-- Setup Box (Visible by Default if no key) -->
-        <div id="setup-box" class="card p-6 accent-border">
-            <h2 class="text-lg font-semibold mb-4">API Configuration (Critical)</h2>
-            <div class="space-y-4">
-                <input type="password" id="api-key" class="input-dark" placeholder="Paste Gemini API Key here...">
-                <div class="flex flex-col md:flex-row gap-3">
-                    <button onclick="testKey()" class="flex-1 p-3 bg-gray-800 rounded-lg hover:bg-gray-700 font-medium">Test API Connection</button>
-                    <button onclick="saveKey()" class="flex-1 p-3 btn-green rounded-lg">Save & Initialize</button>
+    <div class="w-full max-w-5xl space-y-8">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-800 pb-6">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter italic">
+                    <span class="text-blue-500">NK</span> TOOLS <span class="text-gray-500 font-normal not-italic">PRO</span>
+                </h1>
+                <p class="text-gray-500 text-sm">Cinematic Motion & AI Video Analytics</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="connection-indicator" class="flex items-center gap-2 bg-gray-900 px-3 py-2 rounded-lg border border-gray-800">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <span class="text-xs font-mono" id="active-model-name">Disconnected</span>
                 </div>
-                <p id="test-status" class="text-xs text-gray-500"></p>
+                <button onclick="toggleSettings()" class="p-2 bg-gray-800 rounded-lg hover:bg-gray-700">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 00 1.82.33H9a1.65 1.65 0 00 1-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 00 1 1.51 1.65 1.65 0 00 1.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 00 1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                </button>
             </div>
         </div>
 
-        <!-- Main Workspace -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="card p-6 space-y-4">
-                <label class="text-xs font-bold uppercase text-gray-500">Input Image</label>
-                <div onclick="document.getElementById('file-upload').click()" class="h-48 border-2 border-dashed border-gray-700 rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-800/50 relative overflow-hidden">
-                    <input type="file" id="file-upload" class="hidden" accept="image/*">
-                    <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain">
-                    <div id="placeholder-ui" class="text-center">
-                        <p class="text-sm">Click to select photo</p>
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="hidden glass-card p-6 border-blue-500/50 bg-blue-900/5">
+            <h2 class="font-bold text-blue-400 mb-4 flex items-center gap-2">
+                API CONFIGURATION
+            </h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="password" id="api-key" class="input-dark flex-grow" placeholder="Enter Gemini API Key...">
+                <button onclick="autoDiscoverModels()" class="btn-primary px-8 py-3 flex items-center justify-center gap-2">
+                    <span id="save-btn-text">SAVE & AUTO-SCAN</span>
+                </button>
+            </div>
+            <p id="auth-log" class="text-xs mt-3 text-gray-500"></p>
+        </div>
+
+        <!-- Working Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left: Assets -->
+            <div class="space-y-6">
+                <div class="glass-card p-6 h-full">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-4">Base Image Asset</label>
+                    <div id="drop-zone" class="h-64 border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800/30 transition group">
+                        <input type="file" id="img-file" class="hidden" accept="image/*">
+                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain p-2">
+                        <div id="upload-icon" class="text-center group-hover:scale-110 transition">
+                            <svg class="mx-auto mb-3 text-gray-600" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-gray-500 text-sm">Select Image for Motion Analysis</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card p-6 space-y-4">
-                <label class="text-xs font-bold uppercase text-gray-500">Motion Prompt</label>
-                <textarea id="prompt-area" class="input-dark h-48 resize-none" placeholder="Describe the cinematic movement..."></textarea>
+            <!-- Right: Logic -->
+            <div class="space-y-6">
+                <div class="glass-card p-6">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-4">Motion Sequence Description</label>
+                    <textarea id="prompt-input" class="input-dark h-44 resize-none leading-relaxed" placeholder="Describe the movement... (e.g., 'Cinematic tilt up with lens flare and bokeh background movement')"></textarea>
+                    
+                    <button id="process-btn" class="w-full mt-6 py-4 btn-primary text-lg flex items-center justify-center gap-3">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>PROCESS MOTION</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Action Button -->
-        <button id="run-btn" class="w-full p-4 btn-blue rounded-xl text-lg flex items-center justify-center gap-3">
-            <span>GENERATE CINEMATIC DATA</span>
-        </button>
-
-        <!-- Result -->
-        <div id="result-area" class="hidden card p-6 border-l-4 border-blue-500 bg-blue-900/5">
-            <h3 class="text-blue-400 font-bold mb-3">AI Engine Output:</h3>
-            <div id="output-text" class="text-gray-300 whitespace-pre-wrap leading-relaxed"></div>
+        <!-- Result Console -->
+        <div id="console-box" class="hidden glass-card p-6 overflow-hidden">
+            <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                <span class="text-blue-400 font-bold text-sm tracking-widest">AI GENERATED SEQUENCE</span>
+                <button onclick="copyOutput()" class="text-xs text-gray-500 hover:text-white">COPY DATA</button>
+            </div>
+            <div id="console-output" class="text-gray-300 font-mono text-sm whitespace-pre-wrap"></div>
         </div>
 
-        <p id="system-log" class="text-center text-sm text-gray-600 italic"></p>
+        <p id="system-status" class="text-center text-xs text-gray-700 font-mono"></p>
     </div>
 
     <script>
-        const UI = {
+        const state = {
+            apiKey: localStorage.getItem('nk_pro_key') || '',
+            activeModel: localStorage.getItem('nk_active_model') || '',
+            isProcessing: false
+        };
+
+        const DOM = {
             key: document.getElementById('api-key'),
-            testStatus: document.getElementById('test-status'),
-            file: document.getElementById('file-upload'),
-            preview: document.getElementById('img-preview'),
-            placeholder: document.getElementById('placeholder-ui'),
-            prompt: document.getElementById('prompt-area'),
-            runBtn: document.getElementById('run-btn'),
-            result: document.getElementById('result-area'),
-            output: document.getElementById('output-text'),
-            log: document.getElementById('system-log')
+            modelLabel: document.getElementById('active-model-name'),
+            indicator: document.querySelector('#connection-indicator div'),
+            settings: document.getElementById('settings-panel'),
+            log: document.getElementById('auth-log'),
+            drop: document.getElementById('drop-zone'),
+            file: document.getElementById('img-file'),
+            prev: document.getElementById('img-preview'),
+            upIcon: document.getElementById('upload-icon'),
+            prompt: document.getElementById('prompt-input'),
+            btn: document.getElementById('process-btn'),
+            console: document.getElementById('console-box'),
+            output: document.getElementById('console-output'),
+            sys: document.getElementById('system-status')
         };
 
-        // Initialize from storage
-        window.onload = () => {
-            UI.key.value = localStorage.getItem('nk_repair_key') || '';
-            if (UI.key.value) document.getElementById('setup-box').classList.add('hidden');
-        };
+        function toggleSettings() { DOM.settings.classList.toggle('hidden'); }
 
-        function saveKey() {
-            localStorage.setItem('nk_repair_key', UI.key.value.trim());
-            document.getElementById('setup-box').classList.add('hidden');
-            UI.log.innerText = "Key saved. System ready.";
-        }
+        async function autoDiscoverModels() {
+            const key = DOM.key.value.trim();
+            if (!key) return alert("Bhai, API Key toh enter karo!");
 
-        async function testKey() {
-            const key = UI.key.value.trim();
-            if (!key) return alert("Key toh daalo bhai!");
-            
-            UI.testStatus.innerText = "Testing... (Requesting Model List)";
+            DOM.log.innerText = "Scanning your key permissions...";
             try {
-                // Check if key can even list models
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
                 const data = await res.json();
-                
-                if (res.ok) {
-                    UI.testStatus.innerHTML = `<span class="text-green-500">✔ Key is ACTIVE. System detects ${data.models.length} models available.</span>`;
+
+                if (!res.ok) throw new Error(data.error?.message || "Invalid Key");
+
+                // Hume Flash ya Pro model dhoondna hai jo generateContent support kare
+                const bestModel = data.models.find(m => 
+                    m.supportedGenerationMethods.includes("generateContent") && 
+                    (m.name.includes("flash") || m.name.includes("pro"))
+                );
+
+                if (bestModel) {
+                    state.apiKey = key;
+                    state.activeModel = bestModel.name; // Ye "models/gemini-1.5-flash" jaisa hoga
+                    localStorage.setItem('nk_pro_key', key);
+                    localStorage.setItem('nk_active_model', state.activeModel);
+                    
+                    updateUIStatus(true, state.activeModel);
+                    DOM.log.innerHTML = `<span class="text-green-500 font-bold">SUCCESS! Connected to ${state.activeModel}</span>`;
+                    setTimeout(toggleSettings, 1500);
                 } else {
-                    UI.testStatus.innerHTML = `<span class="text-red-500">✘ Key REJECTED: ${data.error.message}</span>`;
+                    throw new Error("Aapki key ke paas kisi bhi useable model ka access nahi hai.");
                 }
-            } catch (e) {
-                UI.testStatus.innerText = "Connection failed. Internet check karein.";
+            } catch (err) {
+                DOM.log.innerHTML = `<span class="text-red-500 font-bold">ERROR: ${err.message}</span>`;
+                updateUIStatus(false, "Offline");
             }
         }
 
-        UI.file.onchange = (e) => {
+        function updateUIStatus(ok, name) {
+            DOM.modelLabel.innerText = name.replace('models/', '');
+            DOM.indicator.className = `w-2 h-2 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`;
+        }
+
+        // Image Selection Logic
+        DOM.drop.onclick = () => DOM.file.click();
+        DOM.file.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (re) => {
-                    UI.preview.src = re.target.result;
-                    UI.preview.classList.remove('hidden');
-                    UI.placeholder.classList.add('hidden');
+                reader.onload = (r) => {
+                    DOM.prev.src = r.target.result;
+                    DOM.prev.classList.remove('hidden');
+                    DOM.upIcon.classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         };
 
-        async function safeCall(payload) {
-            const key = localStorage.getItem('nk_repair_key');
-            // Hum specifically "gemini-1.5-flash" use karenge kyunki ye sabse zyada stable hai
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-            
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+        // Main Engine Call
+        DOM.btn.onclick = async () => {
+            if (!state.apiKey || !state.activeModel) {
+                DOM.settings.classList.remove('hidden');
+                return alert("Pehle API Key scan karein!");
+            }
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error?.message || "Server Error");
-            return data.candidates[0].content.parts[0].text;
-        }
-
-        UI.runBtn.onclick = async () => {
-            const key = localStorage.getItem('nk_repair_key');
-            if (!key) return document.getElementById('setup-box').classList.remove('hidden');
-
-            UI.runBtn.disabled = true;
-            UI.runBtn.innerHTML = `<div class="loader"></div> PROCESSING...`;
-            UI.result.classList.add('hidden');
+            DOM.btn.disabled = true;
+            DOM.btn.innerHTML = `<div class="loader"></div> ANALYZING MOTION...`;
+            DOM.console.classList.add('hidden');
 
             try {
-                const isImg = !UI.preview.classList.contains('hidden');
-                const base64 = isImg ? UI.preview.src.split(',')[1] : null;
+                const hasImg = !DOM.prev.classList.contains('hidden');
+                const base64 = hasImg ? DOM.prev.src.split(',')[1] : null;
 
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: `Task: Cinematic Motion Engine. User Instruction: ${UI.prompt.value}` },
-                            ...(isImg ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])
+                            { text: `Task: Cinematic Motion Engine. User Prompt: ${DOM.prompt.value}. Give detailed motion settings.` },
+                            ...(hasImg ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])
                         ]
                     }]
                 };
 
-                const text = await safeCall(payload);
-                UI.output.innerText = text;
-                UI.result.classList.remove('hidden');
-                UI.log.innerText = "Task Complete.";
+                const url = `https://generativelanguage.googleapis.com/v1beta/${state.activeModel}:generateContent?key=${state.apiKey}`;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error?.message || "Generation Failed");
+
+                DOM.output.innerText = data.candidates[0].content.parts[0].text;
+                DOM.console.classList.remove('hidden');
+                DOM.sys.innerText = "Processing Successful.";
             } catch (err) {
-                UI.log.innerHTML = `<span class="text-red-500">CRITICAL ERROR: ${err.message}</span>`;
-                // If it fails, suggest re-testing the key
-                document.getElementById('setup-box').classList.remove('hidden');
+                alert("Generation Error: " + err.message);
+                DOM.sys.innerText = "Error: " + err.message;
             } finally {
-                UI.runBtn.disabled = false;
-                UI.runBtn.innerText = "GENERATE CINEMATIC DATA";
+                DOM.btn.disabled = false;
+                DOM.btn.innerHTML = `<span>PROCESS MOTION</span>`;
+            }
+        };
+
+        function copyOutput() {
+            const text = DOM.output.innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            alert("Copied to clipboard!");
+        }
+
+        // Auto Load
+        window.onload = () => {
+            if (state.apiKey && state.activeModel) {
+                DOM.key.value = state.apiKey;
+                updateUIStatus(true, state.activeModel);
             }
         };
     </script>
