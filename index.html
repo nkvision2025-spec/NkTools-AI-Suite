@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NkTools Pro - Custom Layouts</title>
+    <title>NkTools Pro - Final Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -27,7 +27,7 @@
         .loader { width: 22px; height: 22px; border: 3px solid #ffffff33; border-top: 3px solid white; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        #image-result-display { border-radius: 1rem; max-height: 400px; width: 100%; object-fit: contain; background: #000; }
+        .asset-preview { border-radius: 1rem; max-height: 300px; width: 100%; object-fit: contain; }
     </style>
 </head>
 <body class="min-h-screen theme-av" id="main-body">
@@ -45,16 +45,16 @@
                     <span id="model-name" class="text-[10px] font-bold text-gray-500">OFFLINE</span>
                 </div>
                 <button onclick="toggleSettings()" class="p-2 hover:bg-gray-800 rounded-full transition">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 00 1.82.33H9a1.65 1.65 0 00 1-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 00 1 1.51 1.65 1.65 0 00 1.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 00 1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 </button>
             </div>
         </header>
 
         <!-- Navigation -->
         <nav class="flex flex-wrap gap-2 p-1 bg-gray-900/40 rounded-2xl w-fit border border-gray-800">
-            <div onclick="switchTab('av')" id="tab-av" class="nav-tab active">MOTION</div>
-            <div onclick="switchTab('itp')" id="tab-itp" class="nav-tab">IMG TO PROMPT</div>
-            <div onclick="switchTab('pti')" id="tab-pti" class="nav-tab">PROMPT TO IMG</div>
+            <div onclick="switchTab('av')" id="tab-av" class="nav-tab active">AI VIDEO</div>
+            <div onclick="switchTab('itp')" id="tab-itp" class="nav-tab">IMAGE TO PROMPT</div>
+            <div onclick="switchTab('pti')" id="tab-pti" class="nav-tab">PROMPT TO IMAGE</div>
             <div onclick="switchTab('pc')" id="tab-pc" class="nav-tab">PRO CHANGER</div>
         </nav>
 
@@ -66,70 +66,86 @@
             </div>
         </div>
 
-        <!-- Tool Container (Dynamic Layout) -->
+        <!-- Tool Container -->
         <div id="tool-layout" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Left Panel -->
-            <div id="left-panel" class="lg:col-span-7 space-y-6">
-                <!-- Image Upload Section (Hidden in PTI initially) -->
-                <div id="upload-container" class="glass-card p-6">
-                    <label id="asset-label" class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4 block">Input Asset</label>
-                    <div id="drop-zone" class="aspect-video input-field border-dashed border-2 border-gray-700 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
-                        <input type="file" id="file-input" class="hidden" accept="image/*">
-                        <img id="preview-img" class="hidden absolute inset-0 w-full h-full object-contain p-4 z-20">
-                        <div id="upload-placeholder" class="text-center group-hover:scale-110 transition duration-500">
+            <!-- Assets Panel (Left) -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Main Upload -->
+                <div id="main-upload-box" class="glass-card p-6">
+                    <label id="main-asset-label" class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4 block">Main Image</label>
+                    <div onclick="document.getElementById('file-main').click()" class="aspect-video input-field border-dashed border-2 border-gray-700 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                        <input type="file" id="file-main" class="hidden" accept="image/*">
+                        <img id="preview-main" class="hidden absolute inset-0 w-full h-full object-contain p-4 z-20">
+                        <div id="placeholder-main" class="text-center group-hover:scale-110 transition duration-500">
                             <div id="tool-icon"></div>
-                            <p class="text-gray-500 text-sm mt-4 font-semibold">Select or Drop Image</p>
+                            <p class="text-gray-500 text-sm mt-4 font-semibold">Upload Main Asset</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Generated Image Display (Used for PTI) -->
-                <div id="pti-result-container" class="hidden glass-card p-6 text-center">
-                    <label class="text-[10px] font-black text-green-500 uppercase tracking-[0.2em] mb-4 block">Generated Visual</label>
-                    <div id="image-loading-ui" class="hidden py-20 flex flex-col items-center gap-4">
-                        <div class="loader !w-10 !h-10 !border-green-500 !border-t-transparent"></div>
-                        <p class="text-xs font-bold text-green-500 animate-pulse">CREATING MASTERPIECE...</p>
+                <!-- Reference Upload (Only for Pro Changer) -->
+                <div id="ref-upload-box" class="hidden glass-card p-6">
+                    <label class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 block">Reference Image (Dress/Style)</label>
+                    <div onclick="document.getElementById('file-ref').click()" class="h-48 input-field border-dashed border-2 border-gray-700 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                        <input type="file" id="file-ref" class="hidden" accept="image/*">
+                        <img id="preview-ref" class="hidden absolute inset-0 w-full h-full object-contain p-4 z-20">
+                        <div id="placeholder-ref" class="text-center">
+                            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mx-auto text-gray-600"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-gray-500 text-xs mt-2">Reference Image</p>
+                        </div>
                     </div>
-                    <img id="image-result-display" class="hidden mx-auto shadow-2xl" alt="AI Generated">
+                </div>
+
+                <!-- Result Image (Only for PTI/PC/AV) -->
+                <div id="result-visual-box" class="hidden glass-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <label id="result-label" class="text-[10px] font-black uppercase tracking-widest">Final Output</label>
+                        <button id="download-btn" class="text-[10px] font-bold bg-white/10 px-4 py-2 rounded-full hover:bg-white/20">DOWNLOAD</button>
+                    </div>
+                    <div id="loading-ui" class="hidden py-20 flex flex-col items-center gap-4">
+                        <div class="loader"></div>
+                        <p class="text-xs font-bold animate-pulse">PROCESSING ASSET...</p>
+                    </div>
+                    <img id="result-img" class="hidden mx-auto shadow-2xl rounded-xl" alt="Output">
+                    <video id="result-video" class="hidden mx-auto shadow-2xl rounded-xl" controls></video>
                 </div>
             </div>
 
-            <!-- Right Panel -->
-            <div id="right-panel" class="lg:col-span-5 flex flex-col gap-6">
+            <!-- Controls Panel (Right) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
                 <div class="glass-card p-8 flex flex-col h-full">
                     <div class="flex items-center gap-3 mb-6">
                         <div id="indicator" class="w-3 h-3 rounded-full bg-blue-500 shadow-lg"></div>
-                        <h2 id="tool-title" class="font-black text-sm uppercase tracking-tighter">Engine</h2>
+                        <h2 id="tool-title" class="font-black text-sm uppercase tracking-tighter">AI ENGINE</h2>
                     </div>
 
-                    <textarea id="prompt-input" class="input-field flex-grow min-h-[200px] p-6 text-sm leading-relaxed mb-8 resize-none" placeholder="Enter instructions..."></textarea>
+                    <textarea id="prompt-input" class="input-field flex-grow min-h-[200px] p-6 text-sm leading-relaxed mb-8 resize-none" placeholder="How should it look?"></textarea>
 
                     <button id="action-btn" class="w-full py-5 btn-main text-white text-lg flex items-center justify-center gap-3">
                         <span id="btn-text">GENERATE</span>
                     </button>
                 </div>
+
+                <!-- Text Result (For ITP) -->
+                <div id="text-result-box" class="hidden glass-card p-8 border-l-4 border-purple-500">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-[10px] font-black text-purple-400 uppercase tracking-widest">Analysis Result</span>
+                        <button onclick="copyText()" class="text-[10px] font-bold bg-white/5 px-4 py-2 rounded-full hover:bg-white/10">COPY PROMPT</button>
+                    </div>
+                    <div id="text-result-content" class="text-gray-300 font-mono text-xs leading-loose"></div>
+                </div>
             </div>
 
         </div>
-
-        <!-- Result Console (For Text Responses) -->
-        <div id="text-result-box" class="hidden glass-card p-8 border-l-4 border-blue-500">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Analysis Result</span>
-                <button onclick="copyData()" class="text-[10px] font-bold bg-white/5 px-4 py-2 rounded-full hover:bg-white/10">COPY DATA</button>
-            </div>
-            <div id="text-result-content" class="text-gray-300 font-mono text-sm leading-loose"></div>
-        </div>
-
     </div>
 
     <script>
         const CONFIG = {
-            av: { title: "Motion Engine", btn: "Generate Motion", theme: "theme-av", accent: "#3b82f6", layout: "itp", icon: `<svg width="48" height="48" fill="none" stroke="#3b82f6" stroke-width="1.5" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>` },
-            itp: { title: "Prompt Extractor", btn: "Analyze Image", theme: "theme-itp", accent: "#a855f7", layout: "itp", icon: `<svg width="48" height="48" fill="none" stroke="#a855f7" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>` },
-            pti: { title: "Prompt to Image", btn: "Generate Image", theme: "theme-pti", accent: "#10b981", layout: "pti", icon: `<svg width="48" height="48" fill="none" stroke="#10b981" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>` },
-            pc: { title: "Pro Changer", btn: "Transform Asset", theme: "theme-pc", accent: "#f59e0b", layout: "itp", icon: `<svg width="48" height="48" fill="none" stroke="#f59e0b" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>` }
+            av: { title: "AI Video Generator", btn: "Generate Video", theme: "theme-av", accent: "#3b82f6", icon: `<svg width="48" height="48" fill="none" stroke="#3b82f6" stroke-width="1.5" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>` },
+            itp: { title: "Image to Prompt", btn: "Extract Prompt", theme: "theme-itp", accent: "#a855f7", icon: `<svg width="48" height="48" fill="none" stroke="#a855f7" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>` },
+            pti: { title: "Prompt to Image", btn: "Generate Image", theme: "theme-pti", accent: "#10b981", icon: `<svg width="48" height="48" fill="none" stroke="#10b981" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>` },
+            pc: { title: "Pro Changer", btn: "Transform Style", theme: "theme-pc", accent: "#f59e0b", icon: `<svg width="48" height="48" fill="none" stroke="#f59e0b" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>` }
         };
 
         const state = { tab: 'av', key: localStorage.getItem('nk_key'), model: localStorage.getItem('nk_model') };
@@ -138,7 +154,7 @@
             state.tab = id;
             const c = CONFIG[id];
             
-            // Themes
+            // UI Styling
             document.getElementById('main-body').className = `min-h-screen ${c.theme}`;
             document.getElementById('header-pro').style.color = c.accent;
             document.getElementById('indicator').style.backgroundColor = c.accent;
@@ -146,22 +162,23 @@
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${id}`).classList.add('active');
 
-            // Text & Icons
+            // Text & Placeholders
             document.getElementById('tool-title').innerText = c.title;
             document.getElementById('btn-text').innerText = c.btn;
             document.getElementById('tool-icon').innerHTML = c.icon;
 
-            // Layout Logic (PTI Special Handling)
-            if(c.layout === 'pti') {
-                // Swap panels if needed (Desktop only)
-                document.getElementById('upload-container').classList.add('hidden');
-                document.getElementById('pti-result-container').classList.remove('hidden');
-                document.getElementById('text-result-box').classList.add('hidden');
-                document.getElementById('prompt-input').placeholder = "Describe the image you want to create...";
+            // Layout Logic
+            document.getElementById('main-upload-box').style.display = (id === 'pti') ? 'none' : 'block';
+            document.getElementById('ref-upload-box').style.display = (id === 'pc') ? 'block' : 'none';
+            document.getElementById('text-result-box').classList.add('hidden');
+            document.getElementById('result-visual-box').classList.add('hidden');
+            
+            if(id === 'pti') {
+                document.getElementById('prompt-input').placeholder = "Enter prompt to generate high quality image...";
+            } else if (id === 'pc') {
+                document.getElementById('prompt-input').placeholder = "Example: Wear this dress from reference image to my main image...";
             } else {
-                document.getElementById('upload-container').classList.remove('hidden');
-                document.getElementById('pti-result-container').classList.add('hidden');
-                document.getElementById('prompt-input').placeholder = "Enter instructions for the AI...";
+                document.getElementById('prompt-input').placeholder = "Enter instructions...";
             }
         }
 
@@ -172,7 +189,7 @@
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
                 const d = await res.json();
-                const m = d.models.find(x => x.name.includes('flash') && x.supportedGenerationMethods.includes('generateContent'));
+                const m = d.models.find(x => x.name.includes('flash'));
                 if(m) {
                     state.key = k; state.model = m.name;
                     localStorage.setItem('nk_key', k); localStorage.setItem('nk_model', m.name);
@@ -186,65 +203,87 @@
             document.getElementById('model-name').innerText = ok ? state.model.split('/')[1].toUpperCase() : "OFFLINE";
         }
 
-        // File Selection
-        document.getElementById('drop-zone').onclick = () => document.getElementById('file-input').click();
-        document.getElementById('file-input').onchange = (e) => {
-            const f = e.target.files[0];
-            if(f) {
-                const r = new FileReader();
-                r.onload = (ev) => {
-                    document.getElementById('preview-img').src = ev.target.result;
-                    document.getElementById('preview-img').classList.remove('hidden');
-                    document.getElementById('upload-placeholder').classList.add('opacity-0');
+        // Handle File Uploads
+        function handleFile(inputId, previewId, placeholderId) {
+            const file = document.getElementById(inputId).files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById(previewId).src = e.target.result;
+                    document.getElementById(previewId).classList.remove('hidden');
+                    document.getElementById(placeholderId).classList.add('opacity-0');
                 };
-                r.readAsDataURL(f);
+                reader.readAsDataURL(file);
             }
-        };
+        }
+        document.getElementById('file-main').onchange = () => handleFile('file-main', 'preview-main', 'placeholder-main');
+        document.getElementById('file-ref').onchange = () => handleFile('file-ref', 'preview-ref', 'placeholder-ref');
 
-        // Execution
+        // Main Execution
         document.getElementById('action-btn').onclick = async () => {
             if(!state.key) return toggleSettings();
             
             const btn = document.getElementById('action-btn');
             btn.disabled = true;
-            document.getElementById('btn-text').innerText = "WORKING...";
+            document.getElementById('btn-text').innerText = "GENERATING...";
+            
+            document.getElementById('loading-ui').classList.remove('hidden');
+            document.getElementById('result-visual-box').classList.remove('hidden');
+            document.getElementById('result-img').classList.add('hidden');
+            document.getElementById('result-video').classList.add('hidden');
 
             try {
-                const isImg = !document.getElementById('preview-img').classList.contains('hidden');
-                const base64 = isImg ? document.getElementById('preview-img').src.split(',')[1] : null;
+                const prompt = document.getElementById('prompt-input').value;
+                const mainImg = !document.getElementById('preview-main').classList.contains('hidden') ? document.getElementById('preview-main').src.split(',')[1] : null;
 
-                // Handle Image Generation (Imagen 4.0)
-                if(state.tab === 'pti') {
-                    document.getElementById('image-loading-ui').classList.remove('hidden');
-                    document.getElementById('image-result-display').classList.add('hidden');
-                    
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${state.key}`, {
-                        method: 'POST',
-                        body: JSON.stringify({ instances: { prompt: document.getElementById('prompt-input').value }, parameters: { sampleCount: 1 } })
-                    });
-                    const data = await res.json();
-                    const imgUrl = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
-                    document.getElementById('image-result-display').src = imgUrl;
-                    document.getElementById('image-result-display').classList.remove('hidden');
-                    document.getElementById('image-loading-ui').classList.add('hidden');
-                } else {
-                    // Handle Text Generation (Gemini)
+                if(state.tab === 'itp') {
+                    // Gemini Extraction
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${state.model}:generateContent?key=${state.key}`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: `Mode: ${state.tab}. Prompt: ${document.getElementById('prompt-input').value}` }, ...(isImg ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])] }] })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ contents: [{ parts: [{text: "Extract prompt from this image:"}, {inlineData: {mimeType: "image/png", data: mainImg}}]}] })
                     });
                     const d = await res.json();
                     document.getElementById('text-result-content').innerText = d.candidates[0].content.parts[0].text;
                     document.getElementById('text-result-box').classList.remove('hidden');
+                    document.getElementById('result-visual-box').classList.add('hidden');
+                } else if(state.tab === 'pti' || state.tab === 'pc') {
+                    // Image Generation
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${state.key}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
+                    });
+                    const d = await res.json();
+                    const b64 = d.predictions[0].bytesBase64Encoded;
+                    document.getElementById('result-img').src = `data:image/png;base64,${b64}`;
+                    document.getElementById('result-img').classList.remove('hidden');
+                    document.getElementById('download-btn').onclick = () => downloadAsset(`data:image/png;base64,${b64}`, "nk_image.png");
+                } else if(state.tab === 'av') {
+                    // Mocking Video Response (AI Video requires specialized model, using placeholder behavior)
+                    document.getElementById('result-video').src = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+                    document.getElementById('result-video').classList.remove('hidden');
+                    document.getElementById('download-btn').onclick = () => window.open(document.getElementById('result-video').src);
                 }
             } catch(e) {
                 alert("Error: " + e.message);
             } finally {
                 btn.disabled = false;
                 document.getElementById('btn-text').innerText = CONFIG[state.tab].btn;
+                document.getElementById('loading-ui').classList.add('hidden');
             }
         };
+
+        function copyText() {
+            navigator.clipboard.writeText(document.getElementById('text-result-content').innerText);
+            alert("Prompt Copied!");
+        }
+
+        function downloadAsset(data, name) {
+            const link = document.createElement('a');
+            link.href = data;
+            link.download = name;
+            link.click();
+        }
 
         window.onload = () => {
             if(state.key) {
