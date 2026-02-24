@@ -3,206 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NkTools Pro - Smart Engine</title>
+    <title>NkTools Pro - Ultimate Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glass-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; transition: all 0.3s ease; }
         .glass-card:hover { border-color: #58a6ff; }
-        .input-dark { background: #0d1117; border: 1px solid #30363d; color: white; padding: 14px; border-radius: 10px; width: 100%; outline: none; }
+        .input-dark { background: #0d1117; border: 1px solid #30363d; color: white; padding: 12px; border-radius: 10px; width: 100%; outline: none; font-size: 0.9rem; }
         .btn-primary { background-color: #1f6feb; color: white; font-weight: 700; border-radius: 10px; transition: 0.3s; }
         .btn-primary:hover { background-color: #388bfd; transform: translateY(-1px); }
-        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #58a6ff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #58a6ff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
+        .tab-active { color: #58a6ff; border-bottom: 2px solid #58a6ff; }
+        .nav-item { cursor: pointer; transition: 0.2s; white-space: nowrap; padding-bottom: 8px; font-weight: 600; font-size: 0.85rem; }
+        .nav-item:hover { color: #58a6ff; }
     </style>
 </head>
-<body class="p-4 md:p-10 min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center">
 
-    <div class="w-full max-w-5xl space-y-8">
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-800 pb-6">
-            <div>
-                <h1 class="text-3xl font-black tracking-tighter italic">
-                    <span class="text-blue-500">NK</span> TOOLS <span class="text-gray-500 font-normal not-italic">PRO</span>
-                </h1>
-                <p class="text-gray-500 text-sm">Cinematic Motion & AI Video Analytics</p>
-            </div>
+    <div class="w-full max-w-6xl p-4 md:p-8 space-y-6">
+        <!-- Modern Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-gray-800 pb-6">
             <div class="flex items-center gap-3">
-                <div id="connection-indicator" class="flex items-center gap-2 bg-gray-900 px-3 py-2 rounded-lg border border-gray-800">
-                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                    <span class="text-xs font-mono" id="active-model-name">Disconnected</span>
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-black italic text-2xl shadow-lg shadow-blue-900/20">NK</div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tighter">TOOLS <span class="text-blue-500">PRO</span></h1>
+                    <p class="text-gray-500 text-xs uppercase tracking-widest">Universal AI Studio</p>
                 </div>
-                <button onclick="toggleSettings()" class="p-2 bg-gray-800 rounded-lg hover:bg-gray-700">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 00 1.82.33H9a1.65 1.65 0 00 1-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 00 1 1.51 1.65 1.65 0 00 1.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 00 1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </div>
+
+            <div class="flex items-center gap-4 bg-gray-900/50 p-2 rounded-2xl border border-gray-800">
+                <div id="connection-status" class="flex items-center gap-2 px-3 border-r border-gray-800">
+                    <div id="status-dot" class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span id="active-model-display" class="text-[10px] font-mono text-gray-400">OFFLINE</span>
+                </div>
+                <button onclick="toggleSettings()" class="p-2 text-gray-400 hover:text-white transition">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </button>
             </div>
-        </div>
+        </header>
 
-        <!-- Settings Panel -->
-        <div id="settings-panel" class="hidden glass-card p-6 border-blue-500/50 bg-blue-900/5">
-            <h2 class="font-bold text-blue-400 mb-4 flex items-center gap-2">
-                API CONFIGURATION
-            </h2>
+        <!-- Navigation Tabs -->
+        <nav class="flex gap-8 border-b border-gray-800 overflow-x-auto no-scrollbar">
+            <span onclick="switchTab('av')" id="nav-av" class="nav-item tab-active">MOTION ENGINE</span>
+            <span onclick="switchTab('itp')" id="nav-itp" class="nav-item text-gray-500">IMAGE TO PROMPT</span>
+            <span onclick="switchTab('pti')" id="nav-pti" class="nav-item text-gray-500">PROMPT TO IMAGE</span>
+            <span onclick="switchTab('pc')" id="nav-pc" class="nav-item text-gray-500">PRO CHANGER</span>
+        </nav>
+
+        <!-- Settings Drawer -->
+        <div id="settings-drawer" class="hidden glass-card p-6 bg-blue-900/5 border-blue-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-blue-400">SYSTEM CORE SETTINGS</h3>
+                <button onclick="toggleSettings()" class="text-gray-500 hover:text-white">&times;</button>
+            </div>
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="password" id="api-key" class="input-dark flex-grow" placeholder="Enter Gemini API Key...">
-                <button onclick="autoDiscoverModels()" class="btn-primary px-8 py-3 flex items-center justify-center gap-2">
-                    <span id="save-btn-text">SAVE & AUTO-SCAN</span>
+                <input type="password" id="api-key-input" class="input-dark flex-grow" placeholder="Enter Gemini API Key...">
+                <button onclick="scanAndSave()" class="btn-primary px-6 py-2 text-sm flex items-center gap-2">
+                    <span id="scan-btn-txt">INITIALIZE KEY</span>
                 </button>
             </div>
-            <p id="auth-log" class="text-xs mt-3 text-gray-500"></p>
+            <div id="scan-log" class="mt-3 text-[10px] uppercase font-bold text-gray-600"></div>
         </div>
 
-        <!-- Working Area -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Left: Assets -->
-            <div class="space-y-6">
-                <div class="glass-card p-6 h-full">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-4">Base Image Asset</label>
-                    <div id="drop-zone" class="h-64 border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800/30 transition group">
-                        <input type="file" id="img-file" class="hidden" accept="image/*">
-                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-contain p-2">
-                        <div id="upload-icon" class="text-center group-hover:scale-110 transition">
-                            <svg class="mx-auto mb-3 text-gray-600" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <p class="text-gray-500 text-sm">Select Image for Motion Analysis</p>
+        <!-- Dynamic Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Workspace Left: Inputs -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <label id="input-label-file" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Base Asset</label>
+                        <span id="tool-badge" class="bg-blue-900/30 text-blue-400 text-[10px] px-2 py-1 rounded-md font-bold">MODE: MOTION</span>
+                    </div>
+                    
+                    <div id="drop-area" class="h-80 border-2 border-dashed border-gray-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800/30 transition relative overflow-hidden group">
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                        <img id="preview-img" class="hidden absolute inset-0 w-full h-full object-contain p-4 z-10">
+                        <div id="upload-ui" class="text-center z-0">
+                            <svg class="mx-auto mb-4 text-gray-700 group-hover:text-blue-500 transition" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-gray-500 text-sm">Drop file or click to browse</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right: Logic -->
-            <div class="space-y-6">
-                <div class="glass-card p-6">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-4">Motion Sequence Description</label>
-                    <textarea id="prompt-input" class="input-dark h-44 resize-none leading-relaxed" placeholder="Describe the movement... (e.g., 'Cinematic tilt up with lens flare and bokeh background movement')"></textarea>
+            <!-- Workspace Right: Logic -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card p-6 flex flex-col h-full">
+                    <label id="input-label-text" class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-4">Instructions / Prompt</label>
+                    <textarea id="prompt-input" class="input-dark flex-grow min-h-[150px] resize-none leading-relaxed text-sm mb-6" placeholder="Describe what you want to achieve..."></textarea>
                     
-                    <button id="process-btn" class="w-full mt-6 py-4 btn-primary text-lg flex items-center justify-center gap-3">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>PROCESS MOTION</span>
+                    <button id="main-action-btn" class="w-full py-4 btn-primary flex items-center justify-center gap-3 shadow-xl shadow-blue-900/10">
+                        <span id="btn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+                        <span id="btn-text">GENERATE MOTION</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Result Console -->
-        <div id="console-box" class="hidden glass-card p-6 overflow-hidden">
-            <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
-                <span class="text-blue-400 font-bold text-sm tracking-widest">AI GENERATED SEQUENCE</span>
-                <button onclick="copyOutput()" class="text-xs text-gray-500 hover:text-white">COPY DATA</button>
+        <div id="result-box" class="hidden glass-card p-6 overflow-hidden border-green-900/20 bg-green-900/5">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-green-500 font-bold text-xs tracking-widest">AI OUTPUT DATA</span>
+                <button onclick="copyResult()" class="text-[10px] text-gray-500 hover:text-white uppercase font-bold">Copy to Clipboard</button>
             </div>
-            <div id="console-output" class="text-gray-300 font-mono text-sm whitespace-pre-wrap"></div>
+            <div id="result-content" class="text-gray-200 text-sm whitespace-pre-wrap font-mono leading-relaxed"></div>
         </div>
 
-        <p id="system-status" class="text-center text-xs text-gray-700 font-mono"></p>
+        <footer class="text-center py-10 opacity-30 text-[10px] font-bold tracking-[0.3em] uppercase">
+            NkTools Professional &copy; 2024 • Multi-Model Engine v4.0
+        </footer>
     </div>
 
     <script>
+        const CONFIG = {
+            av: { title: "MOTION ENGINE", btn: "GENERATE MOTION", desc: "Base Photo", prompt: "Motion Description" },
+            itp: { title: "IMAGE TO PROMPT", btn: "EXTRACT PROMPT", desc: "Target Image", prompt: "Extraction Focus" },
+            pti: { title: "PROMPT TO IMAGE", btn: "GENERATE IMAGE", desc: "Reference (Opt)", prompt: "Detailed Image Prompt" },
+            pc: { title: "PRO CHANGER", btn: "TRANSFORM ASSET", desc: "Source Asset", prompt: "Modification Rules" }
+        };
+
         const state = {
-            apiKey: localStorage.getItem('nk_pro_key') || '',
-            activeModel: localStorage.getItem('nk_active_model') || '',
-            isProcessing: false
+            tab: 'av',
+            key: localStorage.getItem('nk_pro_key') || '',
+            model: localStorage.getItem('nk_active_model') || '',
+            isLoading: false
         };
 
         const DOM = {
-            key: document.getElementById('api-key'),
-            modelLabel: document.getElementById('active-model-name'),
-            indicator: document.querySelector('#connection-indicator div'),
-            settings: document.getElementById('settings-panel'),
-            log: document.getElementById('auth-log'),
-            drop: document.getElementById('drop-zone'),
-            file: document.getElementById('img-file'),
-            prev: document.getElementById('img-preview'),
-            upIcon: document.getElementById('upload-icon'),
-            prompt: document.getElementById('prompt-input'),
-            btn: document.getElementById('process-btn'),
-            console: document.getElementById('console-box'),
-            output: document.getElementById('console-output'),
-            sys: document.getElementById('system-status')
+            apiKey: document.getElementById('api-key-input'),
+            settings: document.getElementById('settings-drawer'),
+            log: document.getElementById('scan-log'),
+            modelDisplay: document.getElementById('active-model-display'),
+            indicator: document.getElementById('status-dot'),
+            navItems: document.querySelectorAll('.nav-item'),
+            toolBadge: document.getElementById('tool-badge'),
+            btnText: document.getElementById('btn-text'),
+            fileInput: document.getElementById('file-input'),
+            previewImg: document.getElementById('preview-img'),
+            uploadUI: document.getElementById('upload-ui'),
+            dropArea: document.getElementById('drop-area'),
+            promptInput: document.getElementById('prompt-input'),
+            actionBtn: document.getElementById('main-action-btn'),
+            resultBox: document.getElementById('result-box'),
+            resultContent: document.getElementById('result-content'),
+            inputLabelFile: document.getElementById('input-label-file'),
+            inputLabelText: document.getElementById('input-label-text')
         };
 
         function toggleSettings() { DOM.settings.classList.toggle('hidden'); }
 
-        async function autoDiscoverModels() {
-            const key = DOM.key.value.trim();
-            if (!key) return alert("Bhai, API Key toh enter karo!");
+        function switchTab(tabId) {
+            state.tab = tabId;
+            // Update UI
+            DOM.navItems.forEach(item => {
+                item.classList.remove('tab-active');
+                item.classList.add('text-gray-500');
+            });
+            document.getElementById(`nav-${tabId}`).classList.add('tab-active');
+            document.getElementById(`nav-${tabId}`).classList.remove('text-gray-500');
 
-            DOM.log.innerText = "Scanning your key permissions...";
+            // Update Tool Config
+            const conf = CONFIG[tabId];
+            DOM.toolBadge.innerText = `MODE: ${conf.title}`;
+            DOM.btnText.innerText = conf.btn;
+            DOM.inputLabelFile.innerText = conf.desc;
+            DOM.inputLabelText.innerText = conf.prompt;
+            DOM.resultBox.classList.add('hidden');
+        }
+
+        async function scanAndSave() {
+            const key = DOM.apiKey.value.trim();
+            if (!key) return alert("Please enter a key!");
+
+            DOM.log.innerText = "Scanning available models...";
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
                 const data = await res.json();
 
-                if (!res.ok) throw new Error(data.error?.message || "Invalid Key");
+                if (!res.ok) throw new Error(data.error?.message || "Auth Failed");
 
-                // Hume Flash ya Pro model dhoondna hai jo generateContent support kare
                 const bestModel = data.models.find(m => 
                     m.supportedGenerationMethods.includes("generateContent") && 
                     (m.name.includes("flash") || m.name.includes("pro"))
                 );
 
                 if (bestModel) {
-                    state.apiKey = key;
-                    state.activeModel = bestModel.name; // Ye "models/gemini-1.5-flash" jaisa hoga
+                    state.key = key;
+                    state.model = bestModel.name;
                     localStorage.setItem('nk_pro_key', key);
-                    localStorage.setItem('nk_active_model', state.activeModel);
+                    localStorage.setItem('nk_active_model', state.model);
                     
-                    updateUIStatus(true, state.activeModel);
-                    DOM.log.innerHTML = `<span class="text-green-500 font-bold">SUCCESS! Connected to ${state.activeModel}</span>`;
-                    setTimeout(toggleSettings, 1500);
+                    updateStatusUI(true, state.model);
+                    DOM.log.innerHTML = `<span class="text-green-500">CONNECTED: ${state.model}</span>`;
+                    setTimeout(toggleSettings, 1000);
                 } else {
-                    throw new Error("Aapki key ke paas kisi bhi useable model ka access nahi hai.");
+                    throw new Error("No compatible models found for this key.");
                 }
             } catch (err) {
-                DOM.log.innerHTML = `<span class="text-red-500 font-bold">ERROR: ${err.message}</span>`;
-                updateUIStatus(false, "Offline");
+                DOM.log.innerHTML = `<span class="text-red-500">ERROR: ${err.message}</span>`;
+                updateStatusUI(false, "OFFLINE");
             }
         }
 
-        function updateUIStatus(ok, name) {
-            DOM.modelLabel.innerText = name.replace('models/', '');
-            DOM.indicator.className = `w-2 h-2 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`;
+        function updateStatusUI(ok, name) {
+            DOM.modelDisplay.innerText = name.replace('models/', '').toUpperCase();
+            DOM.indicator.className = `w-2 h-2 rounded-full ${ok ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 animate-pulse'}`;
         }
 
-        // Image Selection Logic
-        DOM.drop.onclick = () => DOM.file.click();
-        DOM.file.onchange = (e) => {
+        // Image Handling
+        DOM.dropArea.onclick = () => DOM.fileInput.click();
+        DOM.fileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (r) => {
-                    DOM.prev.src = r.target.result;
-                    DOM.prev.classList.remove('hidden');
-                    DOM.upIcon.classList.add('hidden');
+                reader.onload = (re) => {
+                    DOM.previewImg.src = re.target.result;
+                    DOM.previewImg.classList.remove('hidden');
+                    DOM.uploadUI.classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         };
 
-        // Main Engine Call
-        DOM.btn.onclick = async () => {
-            if (!state.apiKey || !state.activeModel) {
-                DOM.settings.classList.remove('hidden');
-                return alert("Pehle API Key scan karein!");
+        // Execution Logic
+        DOM.actionBtn.onclick = async () => {
+            if (!state.key || !state.model) {
+                toggleSettings();
+                return;
             }
 
-            DOM.btn.disabled = true;
-            DOM.btn.innerHTML = `<div class="loader"></div> ANALYZING MOTION...`;
-            DOM.console.classList.add('hidden');
+            state.isLoading = true;
+            DOM.actionBtn.disabled = true;
+            DOM.actionBtn.innerHTML = `<div class="loader"></div> PROCESSING...`;
+            DOM.resultBox.classList.add('hidden');
 
             try {
-                const hasImg = !DOM.prev.classList.contains('hidden');
-                const base64 = hasImg ? DOM.prev.src.split(',')[1] : null;
+                const hasImg = !DOM.previewImg.classList.contains('hidden');
+                const base64 = hasImg ? DOM.previewImg.src.split(',')[1] : null;
 
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: `Task: Cinematic Motion Engine. User Prompt: ${DOM.prompt.value}. Give detailed motion settings.` },
+                            { text: `Tool: ${CONFIG[state.tab].title}. Task: ${DOM.promptInput.value}` },
                             ...(hasImg ? [{ inlineData: { mimeType: "image/png", data: base64 } }] : [])
                         ]
                     }]
                 };
 
-                const url = `https://generativelanguage.googleapis.com/v1beta/${state.activeModel}:generateContent?key=${state.apiKey}`;
-                
+                const url = `https://generativelanguage.googleapis.com/v1beta/${state.model}:generateContent?key=${state.key}`;
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -210,36 +260,35 @@
                 });
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error?.message || "Generation Failed");
+                if (!res.ok) throw new Error(data.error?.message || "AI Call Failed");
 
-                DOM.output.innerText = data.candidates[0].content.parts[0].text;
-                DOM.console.classList.remove('hidden');
-                DOM.sys.innerText = "Processing Successful.";
+                DOM.resultContent.innerText = data.candidates[0].content.parts[0].text;
+                DOM.resultBox.classList.remove('hidden');
             } catch (err) {
-                alert("Generation Error: " + err.message);
-                DOM.sys.innerText = "Error: " + err.message;
+                alert("Error: " + err.message);
             } finally {
-                DOM.btn.disabled = false;
-                DOM.btn.innerHTML = `<span>PROCESS MOTION</span>`;
+                state.isLoading = false;
+                DOM.actionBtn.disabled = false;
+                DOM.actionBtn.innerHTML = `<span id="btn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span><span>${CONFIG[state.tab].btn}</span>`;
             }
         };
 
-        function copyOutput() {
-            const text = DOM.output.innerText;
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
+        function copyResult() {
+            const el = document.createElement('textarea');
+            el.value = DOM.resultContent.innerText;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            document.body.removeChild(temp);
-            alert("Copied to clipboard!");
+            document.body.removeChild(el);
+            alert("Copied!");
         }
 
-        // Auto Load
         window.onload = () => {
-            if (state.apiKey && state.activeModel) {
-                DOM.key.value = state.apiKey;
-                updateUIStatus(true, state.activeModel);
+            if (state.key && state.model) {
+                DOM.apiKey.value = state.key;
+                updateStatusUI(true, state.model);
+            } else {
+                toggleSettings();
             }
         };
     </script>
